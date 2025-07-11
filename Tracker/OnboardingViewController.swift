@@ -1,11 +1,11 @@
 import UIKit
 
 final class OnboardingViewController: UIViewController {
-
+    
     private let pageViewController: UIPageViewController
     private let pages: [UIViewController]
     private var currentIndex = 0
-
+    
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Вот это, технологии", for: .normal)
@@ -23,7 +23,7 @@ final class OnboardingViewController: UIViewController {
         pc.translatesAutoresizingMaskIntoConstraints = false
         return pc
     }()
-
+    
     init() {
         pages = [
             ImagePageViewController(imageName: "Image1", labelText: "Отслеживайте только то, что хотите"),
@@ -37,18 +37,18 @@ final class OnboardingViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         pageControl.numberOfPages = pages.count
     }
-
+    
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-
+        
         setupPageViewController()
         setupButton()
         setupPageControl()
     }
-
+    
     private func setupPageViewController() {
         addChild(pageViewController)
         view.addSubview(pageViewController.view)
@@ -56,7 +56,7 @@ final class OnboardingViewController: UIViewController {
         pageViewController.setViewControllers([pages[0]], direction: .forward, animated: false)
         pageViewController.dataSource = self
         pageViewController.delegate = self
-
+        
         pageViewController.view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             pageViewController.view.topAnchor.constraint(equalTo: view.topAnchor),
@@ -65,7 +65,7 @@ final class OnboardingViewController: UIViewController {
             pageViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
-
+    
     private func setupButton() {
         view.addSubview(continueButton)
         
@@ -76,19 +76,19 @@ final class OnboardingViewController: UIViewController {
             continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
-
+        
         continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
     }
     
     private func setupPageControl() {
         view.addSubview(pageControl)
-
+        
         NSLayoutConstraint.activate([
             pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             pageControl.bottomAnchor.constraint(equalTo: continueButton.topAnchor, constant: -16)
         ])
     }
-
+    
     @objc private func continueTapped() {
         if currentIndex < pages.count - 1 {
             currentIndex += 1
@@ -105,7 +105,7 @@ final class OnboardingViewController: UIViewController {
             window.makeKeyAndVisible()
         }
     }
-
+    
 }
 
 extension OnboardingViewController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
@@ -113,12 +113,12 @@ extension OnboardingViewController: UIPageViewControllerDataSource, UIPageViewCo
         guard let index = pages.firstIndex(of: viewController), index > 0 else { return nil }
         return pages[index - 1]
     }
-
+    
     func pageViewController(_: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let index = pages.firstIndex(of: viewController), index < pages.count - 1 else { return nil }
         return pages[index + 1]
     }
-
+    
     func pageViewController(_: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         if completed, let currentVC = pageViewController.viewControllers?.first,
            let index = pages.firstIndex(of: currentVC) {

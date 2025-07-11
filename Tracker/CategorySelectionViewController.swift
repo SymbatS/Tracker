@@ -5,10 +5,10 @@ final class CategorySelectionViewController: UIViewController {
     private let emptyStateView = UIView()
     private let image = UIImageView()
     private let smallTitle = UILabel()
-
+    
     var categories: [String] = []
     var onCategorySelected: ((String) -> Void)?
-
+    
     private let tableView = UITableView()
     private let addButton: UIButton = {
         let button = UIButton(type: .system)
@@ -20,13 +20,13 @@ final class CategorySelectionViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "Категория"
         navigationItem.hidesBackButton = true
-
+        
         setupTableView()
         setupAddButton()
         setupEmptyState()
@@ -39,14 +39,14 @@ final class CategorySelectionViewController: UIViewController {
         tableView.reloadData()
         updateEmptyStateVisibility()
     }
-
+    
     private func setupTableView() {
         tableView.dataSource = self
         tableView.delegate = self
         view.addSubview(tableView)
         tableView.frame = view.bounds
     }
-
+    
     private func setupAddButton() {
         view.addSubview(addButton)
         addButton.addTarget(self, action: #selector(addCategoryTapped), for: .touchUpInside)
@@ -63,22 +63,22 @@ final class CategorySelectionViewController: UIViewController {
         emptyStateView.translatesAutoresizingMaskIntoConstraints = false
         image.translatesAutoresizingMaskIntoConstraints = false
         smallTitle.translatesAutoresizingMaskIntoConstraints = false
-
+        
         image.image = UIImage(named: "Star")
         smallTitle.text = "Привычки и события можно\nобъединить по смыслу"
         smallTitle.font = .systemFont(ofSize: 12)
         smallTitle.textColor = .black
         smallTitle.textAlignment = .center
         smallTitle.numberOfLines = 2
-
+        
         emptyStateView.addSubview(image)
         emptyStateView.addSubview(smallTitle)
         view.addSubview(emptyStateView)
-
+        
         NSLayoutConstraint.activate([
             emptyStateView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyStateView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-
+            
             image.centerXAnchor.constraint(equalTo: emptyStateView.centerXAnchor),
             image.topAnchor.constraint(equalTo: emptyStateView.topAnchor),
             
@@ -93,7 +93,7 @@ final class CategorySelectionViewController: UIViewController {
         emptyStateView.isHidden = !isEmpty
         tableView.isHidden = isEmpty
     }
-
+    
     @objc private func addCategoryTapped() {
         let addVC = AddCategoryViewController()
         addVC.onCategoryCreated = { [weak self] newCategory in
@@ -103,20 +103,19 @@ final class CategorySelectionViewController: UIViewController {
         }
         navigationController?.pushViewController(addVC, animated: true)
     }
-
 }
 
 extension CategorySelectionViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         categories.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell()
         cell.textLabel?.text = categories[indexPath.row]
         return cell
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         onCategorySelected?(categories[indexPath.row])
         navigationController?.popViewController(animated: true)

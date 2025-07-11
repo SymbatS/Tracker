@@ -1,21 +1,21 @@
 import UIKit
 
 final class EmojiCollectionView: UIView, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-
+    
     weak var delegate: EmojiCollectionViewDelegate?
     
     private var selectedIndex: IndexPath?
     private let emojiList = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                              "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                              "🥦", "🏓", "🥇", "🎸", "🏝", "😪"
-                            ]
+    ]
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 5
         layout.minimumLineSpacing = 0
         layout.sectionInset = UIEdgeInsets(top: 24, left: 18, bottom: 24, right: 18)
-
+        
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .clear
         cv.translatesAutoresizingMaskIntoConstraints = false
@@ -27,17 +27,17 @@ final class EmojiCollectionView: UIView, UICollectionViewDelegate, UICollectionV
         super.init(frame: frame)
         setupCollectionView()
     }
-
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupCollectionView()
     }
-
+    
     private func setupCollectionView() {
         addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
-
+        
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -45,9 +45,9 @@ final class EmojiCollectionView: UIView, UICollectionViewDelegate, UICollectionV
             collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
-
+    
     // MARK: UICollectionViewDataSource
-
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return emojiList.count
     }
@@ -56,13 +56,13 @@ final class EmojiCollectionView: UIView, UICollectionViewDelegate, UICollectionV
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath) as? EmojiCell else {
             return UICollectionViewCell()
         }
-
+        
         let emoji = emojiList[indexPath.item]
         cell.setEmoji(emoji)
         cell.setSelected(indexPath == selectedIndex)
         return cell
     }
-
+    
     // MARK: UICollectionViewDelegateFlowLayout
     
     func collectionView(_ collectionView: UICollectionView,

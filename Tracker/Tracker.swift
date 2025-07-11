@@ -1,11 +1,11 @@
 import UIKit
 
 struct Tracker {
-    let id: UUID               // Уникальный идентификатор трекера
-    let name: String           // Название трекера
-    let color: UIColor         // Цвет, связанный с трекером
-    let emoji: String          // Эмоджи для визуального представления
-    let schedule: Set<WeekDay> // Расписание выполнения (если пустое — нерегулярный)
+    let id: UUID
+    let name: String
+    let color: UIColor
+    let emoji: String
+    let schedule: Set<WeekDay>
     let category: String
 }
 

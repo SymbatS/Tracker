@@ -5,7 +5,7 @@ protocol ColorPickerCollectionViewDelegate: AnyObject {
 }
 
 final class ColorPickerCollectionView: UIView, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-
+    
     weak var delegate: ColorPickerCollectionViewDelegate?
     private var selectedIndex: IndexPath?
     
@@ -20,7 +20,7 @@ final class ColorPickerCollectionView: UIView, UICollectionViewDelegate, UIColle
         layout.minimumInteritemSpacing = 8
         layout.minimumLineSpacing = 12
         layout.sectionInset = UIEdgeInsets(top: 12, left: 18, bottom: 12, right: 18)
-
+        
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .clear
         cv.translatesAutoresizingMaskIntoConstraints = false
@@ -32,17 +32,17 @@ final class ColorPickerCollectionView: UIView, UICollectionViewDelegate, UIColle
         super.init(frame: frame)
         setupCollectionView()
     }
-
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupCollectionView()
     }
-
+    
     private func setupCollectionView() {
         addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
-
+        
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -50,16 +50,16 @@ final class ColorPickerCollectionView: UIView, UICollectionViewDelegate, UIColle
             collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return colorHexList.count
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCell", for: indexPath) as? ColorCell else {
             return UICollectionViewCell()
         }
-
+        
         let hex = colorHexList[indexPath.item]
         if let color = UIColor(hex: hex) {
             cell.setColor(color)
@@ -67,7 +67,7 @@ final class ColorPickerCollectionView: UIView, UICollectionViewDelegate, UIColle
         }
         return cell
     }
-
+    
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -96,16 +96,16 @@ final class ColorPickerCollectionView: UIView, UICollectionViewDelegate, UIColle
 extension UIColor {
     convenience init?(hex: String) {
         var hexFormatted = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-
+        
         if hexFormatted.hasPrefix("#") {
             hexFormatted.remove(at: hexFormatted.startIndex)
         }
-
+        
         guard hexFormatted.count == 6 else { return nil }
-
+        
         var rgbValue: UInt64 = 0
         Scanner(string: hexFormatted).scanHexInt64(&rgbValue)
-
+        
         self.init(
             red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
             green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,

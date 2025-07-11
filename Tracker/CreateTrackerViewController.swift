@@ -58,7 +58,7 @@ final class CreateTrackerViewController: UIViewController {
         let habitVC = TrackerFormViewController(config: .init(type: .habit, title: "Новая привычка", showSchedule: true))
         habitVC.delegate = self.delegate
         navigationController?.pushViewController(habitVC, animated: true)
-
+        
     }
     
     @objc private func handleCreateEvent() {
@@ -66,5 +66,5 @@ final class CreateTrackerViewController: UIViewController {
         eventVC.delegate = self.delegate
         navigationController?.pushViewController(eventVC, animated: true)
     }
-
+    
 }
