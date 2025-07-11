@@ -28,6 +28,11 @@ final class TabBarViewController: UITabBarController {
         setupTabBar()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        addSeparatorLine()
+    }
+    
     private func setupTabBar() {
         
         let dataSource: [TabBarItem] = [.trackers, .stats]
@@ -50,6 +55,21 @@ final class TabBarViewController: UITabBarController {
                     $1.tabBarItem.image = UIImage(named: dataSource[$0].iconName)
                     $1.tabBarItem.imageInsets = UIEdgeInsets(top: 5, left: .zero, bottom: -5, right: .zero)
                 }
+    }
+    
+    private func addSeparatorLine() {
+        let separator = UIView()
+        separator.backgroundColor = .lightGray
+        separator.translatesAutoresizingMaskIntoConstraints = false
+
+        tabBar.addSubview(separator)
+
+        NSLayoutConstraint.activate([
+            separator.topAnchor.constraint(equalTo: tabBar.topAnchor),
+            separator.leadingAnchor.constraint(equalTo: tabBar.leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: tabBar.trailingAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 0.5)
+        ])
     }
     
     private func wrappedInNavigationController(with: UIViewController, title: Any?) -> UINavigationController {
