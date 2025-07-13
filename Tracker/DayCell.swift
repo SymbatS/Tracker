@@ -32,7 +32,7 @@ final class DayCell: UITableViewCell {
         contentView.layer.cornerRadius = 0
         contentView.layer.masksToBounds = true
         
-        titleLabel.font = .systemFont(ofSize: 22)
+        titleLabel.font = .systemFont(ofSize: 17)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
         
@@ -62,4 +62,3 @@ final class DayCell: UITableViewCell {
         switchChanged?(sender.isOn)
     }
 }
-

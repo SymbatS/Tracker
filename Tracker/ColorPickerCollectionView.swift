@@ -17,9 +17,9 @@ final class ColorPickerCollectionView: UIView, UICollectionViewDelegate, UIColle
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.minimumInteritemSpacing = 8
-        layout.minimumLineSpacing = 12
-        layout.sectionInset = UIEdgeInsets(top: 12, left: 18, bottom: 12, right: 18)
+        layout.minimumInteritemSpacing = 5
+        layout.minimumLineSpacing = 0
+        layout.sectionInset = UIEdgeInsets(top: 24, left: 2, bottom: 24, right: 2)
         
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .clear
@@ -42,6 +42,7 @@ final class ColorPickerCollectionView: UIView, UICollectionViewDelegate, UIColle
         addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.isScrollEnabled = false
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: topAnchor),
@@ -73,7 +74,7 @@ final class ColorPickerCollectionView: UIView, UICollectionViewDelegate, UIColle
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
         let itemsPerRow: CGFloat = 6
         let spacing: CGFloat = 8
-        let insets: CGFloat = 18 * 2
+        let insets: CGFloat = 2 * 2
         let totalSpacing = (itemsPerRow - 1) * spacing + insets
         let availableWidth = collectionView.bounds.width - totalSpacing
         let itemWidth = floor(availableWidth / itemsPerRow)

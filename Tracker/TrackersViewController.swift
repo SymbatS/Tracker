@@ -9,7 +9,12 @@ final class TrackersViewController: UIViewController {
     private let image = UIImageView()
     private let smallTitle = UILabel()
     private let filterButton = UIButton()
-    
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "dd/MM/yy"
+        return formatter
+    }()
     private var collectionView: UICollectionView!
     private var trackers: [Tracker] = []
     private var categories: [TrackerCategory] = []
@@ -19,6 +24,7 @@ final class TrackersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.setNavigationBarHidden(true, animated: false)
         setupUI()
         filterTrackers(for: currentDate)
     }
@@ -49,7 +55,6 @@ final class TrackersViewController: UIViewController {
         
         plusButton.addTarget(self, action: #selector(didTapPlusButton), for: .touchUpInside)
         plusButton.setImage(UIImage(named: "Plus"), for: .normal)
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: plusButton)
         
         largeTitle.text = "Трекеры"
         largeTitle.font = .systemFont(ofSize: 34, weight: .bold)
@@ -58,7 +63,6 @@ final class TrackersViewController: UIViewController {
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         
         searchField.placeholder = "Поиск"
         searchField.layer.cornerRadius = 10
@@ -98,7 +102,7 @@ final class TrackersViewController: UIViewController {
             datePicker.topAnchor.constraint(equalTo: guide.topAnchor, constant: 5),
             datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            largeTitle.topAnchor.constraint(equalTo: view.topAnchor, constant: 88),
+            largeTitle.topAnchor.constraint(equalTo: guide.topAnchor, constant: 44),
             largeTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             
             searchField.topAnchor.constraint(equalTo: largeTitle.bottomAnchor, constant: 7),
@@ -147,9 +151,12 @@ final class TrackersViewController: UIViewController {
         let searchText = searchField.text?.lowercased() ?? ""
         
         filteredCategories = categories.map { category in
-            let trackersForDay = category.trackers.filter {
-                $0.schedule.contains(weekday) &&
-                (searchText.isEmpty || $0.name.lowercased().contains(searchText))
+            let trackersForDay = category.trackers.filter { tracker in
+                let isIrregularEvent = tracker.schedule.isEmpty
+                let isScheduledForToday = tracker.schedule.contains(weekday)
+                let matchesSearch = searchText.isEmpty || tracker.name.lowercased().contains(searchText)
+                
+                return (isIrregularEvent || isScheduledForToday) && matchesSearch
             }
             return TrackerCategory(title: category.title, trackers: trackersForDay)
         }.filter { !$0.trackers.isEmpty }
@@ -267,7 +274,7 @@ final class TrackerSectionHeader: UICollectionReusableView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        titleLabel.font = .systemFont(ofSize: 17, weight: .semibold)
+        titleLabel.font = .systemFont(ofSize: 19, weight: .bold)
         titleLabel.textColor = .black
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(titleLabel)
@@ -283,14 +290,3 @@ final class TrackerSectionHeader: UICollectionReusableView {
     }
 }
 
-extension UIView {
-    func addSubviews(_ views: UIView...) {
-        views.forEach { addSubview($0) }
-    }
-}
-
-extension Array where Element: UIView {
-    func disableAutoResizingMasks() {
-        forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
-    }
-}

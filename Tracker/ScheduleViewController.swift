@@ -11,7 +11,7 @@ final class ScheduleViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Выбор расписания"
+        title = "Расписание"
         view.backgroundColor = .white
         navigationItem.hidesBackButton = true
         
@@ -42,7 +42,7 @@ final class ScheduleViewController: UIViewController {
         doneButton.setTitle("Готово", for: .normal)
         doneButton.setTitleColor(.white, for: .normal)
         doneButton.backgroundColor = .black
-        doneButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .medium)
+        doneButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         doneButton.layer.cornerRadius = 16
         doneButton.translatesAutoresizingMaskIntoConstraints = false
         doneButton.addTarget(self, action: #selector(doneTapped), for: .touchUpInside)

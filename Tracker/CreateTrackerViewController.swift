@@ -17,6 +17,9 @@ final class CreateTrackerViewController: UIViewController {
     private func setupUI(){
         view.backgroundColor = .white
         title = "Создание трекера"
+        navigationController?.navigationBar.titleTextAttributes = [
+            .font: UIFont.systemFont(ofSize: 16)
+        ]
         
         let habitButton = UIButton(type: .system)
         habitButton.setTitle("Привычка", for: .normal)

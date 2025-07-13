@@ -11,12 +11,13 @@ final class TrackerFormViewController: UIViewController {
     private let scheduleLabel = UILabel()
     private let emojiLabel = UILabel()
     private let colorLabel = UILabel()
-    private let emojiView = EmojiCollectionView()
-    private let colorPickerView = ColorPickerCollectionView()
+    private let emojiCollectionView = EmojiCollectionView()
+    private let colorPickerCollectionView = ColorPickerCollectionView()
     private let cancelButton = UIButton()
     private let saveButton = UIButton()
+    private let containerView = UIView()
     private let scrollView = UIScrollView()
-    private let contentView = UIStackView()
+    private let contentStackView = UIStackView()
     
     private var habitName = ""
     private var categoryTitle: String?
@@ -38,23 +39,18 @@ final class TrackerFormViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.titleTextAttributes = [
+            .font: UIFont.systemFont(ofSize: 16)
+        ]
         title = config.title
         navigationItem.hidesBackButton = true
-        emojiView.delegate = self
-        colorPickerView.delegate = self
+        emojiCollectionView.delegate = self
+        colorPickerCollectionView.delegate = self
         setupUI()
     }
     
     private func setupUI() {
         view.backgroundColor = .white
-        
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.axis = .vertical
-        contentView.spacing = 16
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubviews(scrollView, cancelButton, saveButton)
-        scrollView.addSubview(contentView)
         
         nameTextField.layer.cornerRadius = 16
         nameTextField.placeholder = "Введите название трекера"
@@ -66,20 +62,20 @@ final class TrackerFormViewController: UIViewController {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 75))
         nameTextField.leftView = paddingView
         nameTextField.leftViewMode = .always
-        nameTextField.heightAnchor.constraint(equalToConstant: 75).isActive = true
         
         errorLabel.textColor = .red
-        errorLabel.font = .systemFont(ofSize: 17)
+        errorLabel.font = .systemFont(ofSize: 17, weight: .regular)
         errorLabel.numberOfLines = 0
+        errorLabel.textAlignment = .center
         errorLabel.isHidden = true
         
-        let containerView = UIView()
         containerView.layer.cornerRadius = 16
         containerView.backgroundColor = UIColor(white: 0.9, alpha: 0.3)
         containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.heightAnchor.constraint(equalToConstant: config.showSchedule ? 150 : 75).isActive = true
         
         categoryButton = createArrowButton(title: "Категория", subtitle: nil)
+        categoryButton.titleLabel?.font = .systemFont(ofSize: 17)
         categoryButton.addTarget(self, action: #selector(categoryTapped), for: .touchUpInside)
         
         containerView.addSubview(categoryButton)
@@ -98,6 +94,7 @@ final class TrackerFormViewController: UIViewController {
             separator.translatesAutoresizingMaskIntoConstraints = false
             
             scheduleButton = createArrowButton(title: "Расписание")
+            scheduleButton.titleLabel?.font = .systemFont(ofSize: 17)
             scheduleButton.addTarget(self, action: #selector(scheduleTapped), for: .touchUpInside)
             
             containerView.addSubviews(separator, scheduleButton)
@@ -122,28 +119,14 @@ final class TrackerFormViewController: UIViewController {
         colorLabel.text = "Цвет"
         colorLabel.font = .systemFont(ofSize: 19, weight: .bold)
         
-        emojiView.translatesAutoresizingMaskIntoConstraints = false
-        emojiView.heightAnchor.constraint(equalToConstant: 204).isActive = true
-        
-        colorPickerView.translatesAutoresizingMaskIntoConstraints = false
-        colorPickerView.heightAnchor.constraint(equalToConstant: 204).isActive = true
-        
-        contentView.addArrangedSubviews([
-            nameTextField,
-            errorLabel,
-            containerView,
-            emojiLabel,
-            emojiView,
-            colorLabel,
-            colorPickerView
-        ])
-        
         setupButtons()
+        setupScrollView()
         layoutConstraints()
     }
     
     private func setupButtons() {
         cancelButton.setTitle("Отменить", for: .normal)
+        cancelButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         cancelButton.setTitleColor(.red, for: .normal)
         cancelButton.layer.borderColor = UIColor.red.cgColor
         cancelButton.layer.borderWidth = 1
@@ -151,6 +134,7 @@ final class TrackerFormViewController: UIViewController {
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
         
         saveButton.setTitle("Создать", for: .normal)
+        saveButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         saveButton.setTitleColor(.white, for: .normal)
         saveButton.backgroundColor = .gray
         saveButton.layer.cornerRadius = 16
@@ -158,28 +142,96 @@ final class TrackerFormViewController: UIViewController {
         saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
     }
     
-    private func layoutConstraints() {
-        cancelButton.translatesAutoresizingMaskIntoConstraints = false
-        saveButton.translatesAutoresizingMaskIntoConstraints = false
+    private func setupScrollView() {
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scrollView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: cancelButton.topAnchor, constant: -12),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        scrollView.addSubview(contentStackView)
+        
+        contentStackView.axis = .vertical
+        contentStackView.spacing = 24
+        contentStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            contentStackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 24),
+            contentStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
+            contentStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
+            contentStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -100),
+            contentStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32)
+        ])
+    }
+    
+    private func layoutConstraints() {
+        
+        let nameFieldContainer = UIView()
+        nameFieldContainer.translatesAutoresizingMaskIntoConstraints = false
+        nameTextField.translatesAutoresizingMaskIntoConstraints = false
+        errorLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        nameFieldContainer.addSubview(nameTextField)
+        nameFieldContainer.addSubview(errorLabel)
+        
+        NSLayoutConstraint.activate([
+            nameTextField.topAnchor.constraint(equalTo: nameFieldContainer.topAnchor),
+            nameTextField.leadingAnchor.constraint(equalTo: nameFieldContainer.leadingAnchor),
+            nameTextField.trailingAnchor.constraint(equalTo: nameFieldContainer.trailingAnchor),
+            nameTextField.heightAnchor.constraint(equalToConstant: 75),
             
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -32),
-            
+            errorLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 8),
+            errorLabel.centerXAnchor.constraint(equalTo: nameFieldContainer.centerXAnchor),
+            errorLabel.bottomAnchor.constraint(equalTo: nameFieldContainer.bottomAnchor)
+        ])
+        
+        let emojiLabelWrapper = UIView()
+        emojiLabel.translatesAutoresizingMaskIntoConstraints = false
+        emojiLabelWrapper.addSubview(emojiLabel)
+        NSLayoutConstraint.activate([
+            emojiLabel.topAnchor.constraint(equalTo: emojiLabelWrapper.topAnchor, constant: 32),
+            emojiLabel.leadingAnchor.constraint(equalTo: emojiLabelWrapper.leadingAnchor, constant: 12),
+            emojiLabel.trailingAnchor.constraint(equalTo: emojiLabelWrapper.trailingAnchor),
+            emojiLabel.bottomAnchor.constraint(equalTo: emojiLabelWrapper.bottomAnchor)
+        ])
+        
+        let colorLabelWrapper = UIView()
+        colorLabel.translatesAutoresizingMaskIntoConstraints = false
+        colorLabelWrapper.addSubview(colorLabel)
+        NSLayoutConstraint.activate([
+            colorLabel.topAnchor.constraint(equalTo: colorLabelWrapper.topAnchor, constant: 16),
+            colorLabel.leadingAnchor.constraint(equalTo: colorLabelWrapper.leadingAnchor, constant: 12),
+            colorLabel.trailingAnchor.constraint(equalTo: colorLabelWrapper.trailingAnchor),
+            colorLabel.bottomAnchor.constraint(equalTo: colorLabelWrapper.bottomAnchor)
+        ])
+        
+        [nameFieldContainer, containerView, emojiLabelWrapper, emojiCollectionView, colorLabelWrapper, colorPickerCollectionView].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            contentStackView.addArrangedSubview($0)
+        }
+        
+        nameTextField.heightAnchor.constraint(equalToConstant: 75).isActive = true
+        emojiCollectionView.heightAnchor.constraint(equalToConstant: 204).isActive = true
+        colorPickerCollectionView.heightAnchor.constraint(equalToConstant: 204).isActive = true
+        
+        containerView.heightAnchor.constraint(equalToConstant: config.showSchedule ? 150 : 75).isActive = true
+        contentStackView.setCustomSpacing(0, after: containerView)
+        contentStackView.setCustomSpacing(0, after: emojiLabelWrapper)
+        contentStackView.setCustomSpacing(0, after: emojiCollectionView)
+        contentStackView.setCustomSpacing(0, after: colorLabelWrapper)
+        view.addSubviews(cancelButton, saveButton)
+        [cancelButton, saveButton].disableAutoResizingMasks()
+        NSLayoutConstraint.activate([
+            cancelButton.topAnchor.constraint(equalTo: colorPickerCollectionView.bottomAnchor, constant: 16),
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
             
+            saveButton.topAnchor.constraint(equalTo: colorPickerCollectionView.bottomAnchor, constant: 16),
             saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
             saveButton.leadingAnchor.constraint(equalTo: cancelButton.trailingAnchor, constant: 8),
             saveButton.heightAnchor.constraint(equalToConstant: 60),
             
@@ -220,7 +272,7 @@ final class TrackerFormViewController: UIViewController {
         let attributedText = NSMutableAttributedString(
             string: title + (subtitle != nil ? "\n" : ""),
             attributes: [
-                .font: UIFont.systemFont(ofSize: 22),
+                .font: UIFont.systemFont(ofSize: 17),
                 .foregroundColor: UIColor.black
             ]
         )
@@ -273,7 +325,7 @@ final class TrackerFormViewController: UIViewController {
                 let title = NSAttributedString(
                     string: "Категория\n",
                     attributes: [
-                        .font: UIFont.systemFont(ofSize: 22),
+                        .font: UIFont.systemFont(ofSize: 17),
                         .foregroundColor: UIColor.black
                     ]
                 )
@@ -316,7 +368,7 @@ final class TrackerFormViewController: UIViewController {
             let title = NSAttributedString(
                 string: "Расписание\n",
                 attributes: [
-                    .font: UIFont.systemFont(ofSize: 22),
+                    .font: UIFont.systemFont(ofSize: 17),
                     .foregroundColor: UIColor.black
                 ]
             )
@@ -373,11 +425,5 @@ extension TrackerFormViewController: ColorPickerCollectionViewDelegate {
     func didSelectColor(_ color: UIColor) {
         selectedColor = color
         validateForm()
-    }
-}
-
-extension UIStackView {
-    func addArrangedSubviews(_ views: [UIView]) {
-        views.forEach { self.addArrangedSubview($0) }
     }
 }

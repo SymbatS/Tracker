@@ -14,7 +14,7 @@ final class EmojiCollectionView: UIView, UICollectionViewDelegate, UICollectionV
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 5
         layout.minimumLineSpacing = 0
-        layout.sectionInset = UIEdgeInsets(top: 24, left: 18, bottom: 24, right: 18)
+        layout.sectionInset = UIEdgeInsets(top: 24, left: 2, bottom: 24, right: 2)
         
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .clear
@@ -37,6 +37,7 @@ final class EmojiCollectionView: UIView, UICollectionViewDelegate, UICollectionV
         addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.isScrollEnabled = false
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: topAnchor),
@@ -71,7 +72,7 @@ final class EmojiCollectionView: UIView, UICollectionViewDelegate, UICollectionV
         
         let itemsPerRow: CGFloat = 6
         let horizontalSpacing: CGFloat = 5
-        let insets: CGFloat = 18 * 2
+        let insets: CGFloat = 2 * 2
         
         let totalSpacing = (itemsPerRow - 1) * horizontalSpacing + insets
         let availableWidth = collectionView.bounds.width - totalSpacing
