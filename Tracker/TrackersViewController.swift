@@ -54,7 +54,7 @@ final class TrackersViewController: UIViewController {
         ])
         
         plusButton.addTarget(self, action: #selector(didTapPlusButton), for: .touchUpInside)
-        plusButton.setImage(UIImage(named: "Plus"), for: .normal)
+        plusButton.setImage(UIImage(named: "PLUSBUTTON"), for: .normal)
         
         largeTitle.text = "Трекеры"
         largeTitle.font = .systemFont(ofSize: 34, weight: .bold)
