@@ -7,6 +7,7 @@ struct Tracker {
     let emoji: String
     let schedule: Set<WeekDay>
     let category: String
+    let type: TrackerType
 }
 
 enum WeekDay: Int, CaseIterable {

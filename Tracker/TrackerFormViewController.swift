@@ -405,7 +405,8 @@ final class TrackerFormViewController: UIViewController {
             color: color,
             emoji: emoji,
             schedule: config.showSchedule ? selectedSchedule : [],
-            category: category
+            category: category,
+            type: config.type
         )
         
         delegate?.didCreateTracker(tracker)

@@ -54,7 +54,7 @@ final class TrackersViewController: UIViewController {
         ])
         
         plusButton.addTarget(self, action: #selector(didTapPlusButton), for: .touchUpInside)
-        plusButton.setImage(UIImage(named: "PLUSBUTTON"), for: .normal)
+        plusButton.setImage(UIImage(named: "AddTracker"), for: .normal)
         
         largeTitle.text = "Трекеры"
         largeTitle.font = .systemFont(ofSize: 34, weight: .bold)
@@ -155,8 +155,24 @@ final class TrackersViewController: UIViewController {
                 let isIrregularEvent = tracker.schedule.isEmpty
                 let isScheduledForToday = tracker.schedule.contains(weekday)
                 let matchesSearch = searchText.isEmpty || tracker.name.lowercased().contains(searchText)
-                
-                return (isIrregularEvent || isScheduledForToday) && matchesSearch
+
+                let wasTracked = completedTrackers.contains { record in
+                    record.id == tracker.id
+                }
+
+                let wasTrackedToday = completedTrackers.contains { record in
+                    record.id == tracker.id && Calendar.current.isDate(record.date, inSameDayAs: date)
+                }
+
+                let shouldShow: Bool
+
+                if isIrregularEvent {
+                    shouldShow = !wasTracked || wasTrackedToday
+                } else {
+                    shouldShow = isScheduledForToday
+                }
+
+                return shouldShow && matchesSearch
             }
             return TrackerCategory(title: category.title, trackers: trackersForDay)
         }.filter { !$0.trackers.isEmpty }
