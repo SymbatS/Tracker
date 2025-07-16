@@ -15,7 +15,7 @@ final class TabBarViewController: UITabBarController {
         }
         var iconName: String {
             switch self {
-                case .trackers:
+            case .trackers:
                 return "Trackers"
             case .stats:
                 return "Stats"
@@ -26,6 +26,11 @@ final class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabBar()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        addSeparatorLine()
     }
     
     private func setupTabBar() {
@@ -45,14 +50,29 @@ final class TabBarViewController: UITabBarController {
             }
         }
         self.viewControllers?.enumerated().forEach {
-
-                    $1.tabBarItem.title = dataSource[$0].title
-                    $1.tabBarItem.image = UIImage(named: dataSource[$0].iconName)
-                    $1.tabBarItem.imageInsets = UIEdgeInsets(top: 5, left: .zero, bottom: -5, right: .zero)
-                }
+            
+            $1.tabBarItem.title = dataSource[$0].title
+            $1.tabBarItem.image = UIImage(named: dataSource[$0].iconName)
+            $1.tabBarItem.imageInsets = UIEdgeInsets(top: 5, left: .zero, bottom: -5, right: .zero)
+        }
+    }
+    
+    private func addSeparatorLine() {
+        let separator = UIView()
+        separator.backgroundColor = .lightGray
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        
+        tabBar.addSubview(separator)
+        
+        NSLayoutConstraint.activate([
+            separator.topAnchor.constraint(equalTo: tabBar.topAnchor),
+            separator.leadingAnchor.constraint(equalTo: tabBar.leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: tabBar.trailingAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 0.5)
+        ])
     }
     
     private func wrappedInNavigationController(with: UIViewController, title: Any?) -> UINavigationController {
-            return UINavigationController(rootViewController: with)
-        }
+        return UINavigationController(rootViewController: with)
+    }
 }
