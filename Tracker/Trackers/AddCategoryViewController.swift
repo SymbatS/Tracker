@@ -2,6 +2,7 @@ import UIKit
 
 final class AddCategoryViewController: UIViewController {
     
+    private let trackerCategoryStore = TrackerCategoryStore()
     var onCategoryCreated: ((String) -> Void)?
     
     private let textField = UITextField()
@@ -63,6 +64,7 @@ final class AddCategoryViewController: UIViewController {
         onCategoryCreated?(text)
         navigationController?.popViewController(animated: true)
     }
+    
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
         let trimmed = textField.text?.trimmingCharacters(in: .whitespaces) ?? ""

@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3D802D8F2DFD63B00097D5C6 /* Exceptions for "Tracker" folder in "Tracker" target */ = {
+		3DE8466A2E2A0B1800F9CFB8 /* Exceptions for "Tracker" folder in "Tracker" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -24,9 +24,19 @@
 		3D802D7F2DFD63AF0097D5C6 /* Tracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				3D802D8F2DFD63B00097D5C6 /* Exceptions for "Tracker" folder in "Tracker" target */,
+				3DE8466A2E2A0B1800F9CFB8 /* Exceptions for "Tracker" folder in "Tracker" target */,
 			);
 			path = Tracker;
+			sourceTree = "<group>";
+		};
+		3DE846162E2A03A300F9CFB8 /* Statistic */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Statistic;
+			sourceTree = "<group>";
+		};
+		3DE846172E2A041400F9CFB8 /* Models */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -45,6 +55,8 @@
 		3D802D742DFD63AF0097D5C6 = {
 			isa = PBXGroup;
 			children = (
+				3DE846172E2A041400F9CFB8 /* Models */,
+				3DE846162E2A03A300F9CFB8 /* Statistic */,
 				3D802D7F2DFD63AF0097D5C6 /* Tracker */,
 				3D802D7E2DFD63AF0097D5C6 /* Products */,
 			);
@@ -75,6 +87,8 @@
 			);
 			fileSystemSynchronizedGroups = (
 				3D802D7F2DFD63AF0097D5C6 /* Tracker */,
+				3DE846162E2A03A300F9CFB8 /* Statistic */,
+				3DE846172E2A041400F9CFB8 /* Models */,
 			);
 			name = Tracker;
 			packageProductDependencies = (

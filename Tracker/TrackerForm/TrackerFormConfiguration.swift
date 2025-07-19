@@ -1,4 +1,4 @@
-enum TrackerType {
+enum TrackerType: String {
     case habit
     case event
 }

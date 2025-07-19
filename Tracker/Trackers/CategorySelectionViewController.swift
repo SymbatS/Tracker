@@ -2,11 +2,9 @@ import UIKit
 
 final class CategorySelectionViewController: UIViewController {
     
-    private let emptyStateView = UIView()
-    private let image = UIImageView()
-    private let smallTitle = UILabel()
+    private let trackerCategoryStore = TrackerCategoryStore()
+    private var categories: [TrackerCategory] = []
     
-    var categories: [String] = []
     var onCategorySelected: ((String) -> Void)?
     
     private let tableView = UITableView()
@@ -15,40 +13,39 @@ final class CategorySelectionViewController: UIViewController {
         button.setTitle("Добавить категорию", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .black
-        button.titleLabel?.font = .boldSystemFont(ofSize: 16)
         button.layer.cornerRadius = 16
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
+    private let emptyStateView = UIView()
+    private let image = UIImageView()
+    private let smallTitle = UILabel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Категория"
+        trackerCategoryStore.delegate = self
         navigationItem.hidesBackButton = true
-        
-        setupTableView()
-        setupAddButton()
-        setupEmptyState()
-        updateEmptyStateVisibility()
+        setupUI()
+        reloadCategories()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        categories = CategoryStorage.savedCategories
+    private func reloadCategories() {
+        categories = trackerCategoryStore.categories
         tableView.reloadData()
         updateEmptyStateVisibility()
     }
     
-    private func setupTableView() {
+    private func setupUI() {
+        view.backgroundColor = .white
+        title = "Категория"
+        
         tableView.dataSource = self
         tableView.delegate = self
         view.addSubview(tableView)
         tableView.frame = view.bounds
-    }
-    
-    private func setupAddButton() {
+        
         view.addSubview(addButton)
+        addButton.translatesAutoresizingMaskIntoConstraints = false
         addButton.addTarget(self, action: #selector(addCategoryTapped), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
@@ -57,6 +54,8 @@ final class CategorySelectionViewController: UIViewController {
             addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             addButton.heightAnchor.constraint(equalToConstant: 60)
         ])
+        
+        setupEmptyState()
     }
     
     private func setupEmptyState() {
@@ -78,10 +77,8 @@ final class CategorySelectionViewController: UIViewController {
         NSLayoutConstraint.activate([
             emptyStateView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyStateView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            
             image.centerXAnchor.constraint(equalTo: emptyStateView.centerXAnchor),
             image.topAnchor.constraint(equalTo: emptyStateView.topAnchor),
-            
             smallTitle.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 8),
             smallTitle.centerXAnchor.constraint(equalTo: emptyStateView.centerXAnchor),
             smallTitle.bottomAnchor.constraint(equalTo: emptyStateView.bottomAnchor)
@@ -96,10 +93,8 @@ final class CategorySelectionViewController: UIViewController {
     
     @objc private func addCategoryTapped() {
         let addVC = AddCategoryViewController()
-        addVC.onCategoryCreated = { [weak self] newCategory in
-            CategoryStorage.addCategory(newCategory)
-            self?.categories = CategoryStorage.savedCategories
-            self?.tableView.reloadData()
+        addVC.onCategoryCreated = { [weak self] newCategoryTitle in
+            _ = self?.trackerCategoryStore.fetchOrCreateCategory(with: newCategoryTitle)
         }
         navigationController?.pushViewController(addVC, animated: true)
     }
@@ -112,12 +107,18 @@ extension CategorySelectionViewController: UITableViewDataSource, UITableViewDel
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell()
-        cell.textLabel?.text = categories[indexPath.row]
+        cell.textLabel?.text = categories[indexPath.row].title
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        onCategorySelected?(categories[indexPath.row])
+        onCategorySelected?(categories[indexPath.row].title)
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension CategorySelectionViewController: TrackerCategoryStoreDelegate {
+    func didUpdateCategories() {
+        reloadCategories()
     }
 }
