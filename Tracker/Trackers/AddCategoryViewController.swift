@@ -2,7 +2,6 @@ import UIKit
 
 final class AddCategoryViewController: UIViewController {
     
-    private let trackerCategoryStore = TrackerCategoryStore()
     var onCategoryCreated: ((String) -> Void)?
     
     private let textField = UITextField()

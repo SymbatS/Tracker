@@ -73,7 +73,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func setupPlusButton() {
-        plusButton.setImage(UIImage(named: "AddTracker"), for: .normal)
+        plusButton.setImage(UIImage(resource: .addTracker), for: .normal)
         plusButton.addTarget(self, action: #selector(didTapPlusButton), for: .touchUpInside)
     }
     

@@ -5,16 +5,17 @@ final class CoreDataStack {
     static let shared = CoreDataStack()
     let persistentContainer: NSPersistentContainer
     
-    init() {
+    private init() {
         persistentContainer = NSPersistentContainer(name: "TrackerDataModel")
         persistentContainer.loadPersistentStores { description, error in
             if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+                assertionFailure("Ошибка инициализации Core Data: \(error), \(error.userInfo)")
+                return
             }
         }
     }
     var context: NSManagedObjectContext {
-        return persistentContainer.viewContext
+        persistentContainer.viewContext
     }
     
     func saveContext() {
