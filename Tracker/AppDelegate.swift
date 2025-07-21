@@ -5,21 +5,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         window = UIWindow()
-        if UserDefaults.standard.bool(forKey: "onboardingCompleted") {
+        
+        if UserDefaultsService.shared.isOnboardingCompleted {
             window?.rootViewController = TabBarViewController()
         } else {
             window?.rootViewController = OnboardingViewController()
         }
+        
         window?.makeKeyAndVisible()
         return true
     }
     
-    // MARK: UISceneSession Lifecycle
-    
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+    func application(_ application: UIApplication,
+                     configurationForConnecting connectingSceneSession: UISceneSession,
+                     options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 }
-

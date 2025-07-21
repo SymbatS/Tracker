@@ -64,6 +64,7 @@ final class AddCategoryViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    
     @objc private func textFieldDidChange(_ textField: UITextField) {
         let trimmed = textField.text?.trimmingCharacters(in: .whitespaces) ?? ""
         let isValid = !trimmed.isEmpty
