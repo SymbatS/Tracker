@@ -2,7 +2,7 @@ import UIKit
 
 final class CategorySelectionViewController: UIViewController {
     
-    private let trackerCategoryStore = TrackerCategoryStore()
+    private let viewModel = CategorySelectionViewModel()
     private var categories: [TrackerCategory] = []
     
     var onCategorySelected: ((String) -> Void)?
@@ -23,16 +23,14 @@ final class CategorySelectionViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        trackerCategoryStore.delegate = self
         navigationItem.hidesBackButton = true
         setupUI()
-        reloadCategories()
-    }
-    
-    private func reloadCategories() {
-        categories = trackerCategoryStore.categories
-        tableView.reloadData()
-        updateEmptyStateVisibility()
+        viewModel.onCategoriesUpdated = { [weak self] categories in
+            self?.categories = categories
+            self?.tableView.reloadData()
+            self?.updateEmptyStateVisibility()
+        }
+        viewModel.loadCategories()
     }
     
     private func setupUI() {
@@ -94,7 +92,7 @@ final class CategorySelectionViewController: UIViewController {
     @objc private func addCategoryTapped() {
         let addVC = AddCategoryViewController()
         addVC.onCategoryCreated = { [weak self] newCategoryTitle in
-            _ = self?.trackerCategoryStore.fetchOrCreateCategory(with: newCategoryTitle)
+            self?.viewModel.createCategory(title: newCategoryTitle)
         }
         navigationController?.pushViewController(addVC, animated: true)
     }
@@ -114,11 +112,5 @@ extension CategorySelectionViewController: UITableViewDataSource, UITableViewDel
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         onCategorySelected?(categories[indexPath.row].title)
         navigationController?.popViewController(animated: true)
-    }
-}
-
-extension CategorySelectionViewController: TrackerCategoryStoreDelegate {
-    func didUpdateCategories() {
-        reloadCategories()
     }
 }

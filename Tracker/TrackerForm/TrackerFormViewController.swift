@@ -18,6 +18,7 @@ final class TrackerFormViewController: UIViewController {
     private let containerView = UIView()
     private let scrollView = UIScrollView()
     private let contentStackView = UIStackView()
+    private let keyboardHandler = KeyboardHandler()
     
     private var habitName = ""
     private var categoryTitle: String?
@@ -44,6 +45,8 @@ final class TrackerFormViewController: UIViewController {
         ]
         title = config.title
         navigationItem.hidesBackButton = true
+        keyboardHandler.setup(for: self)
+        nameTextField.delegate = keyboardHandler
         emojiCollectionView.delegate = self
         colorPickerCollectionView.delegate = self
         setupUI()
