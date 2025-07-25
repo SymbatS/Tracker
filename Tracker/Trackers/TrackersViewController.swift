@@ -1,5 +1,9 @@
 import UIKit
 
+protocol KeyboardHandlerDelegate: AnyObject {
+    func didEndEditing()
+}
+
 final class TrackersViewController: UIViewController {
     
     // MARK: - Properties
@@ -7,20 +11,33 @@ final class TrackersViewController: UIViewController {
     private let trackerCategoryStore = TrackerCategoryStore()
     private let trackerRecordStore = TrackerRecordStore()
     private let keyboardHandler = KeyboardHandler()
-    private var trackers: [Tracker] = []
     private var categories: [TrackerCategory] = []
     var completedTrackers: Set<TrackerRecord> = []
     private var filteredCategories: [TrackerCategory] = []
     private var currentDate: Date = Calendar.current.startOfDay(for: Date())
+    private var isSearching: Bool {
+        !(searchField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+    }
     
     // MARK: - UI Elements
     private let largeTitle = UILabel()
     private let plusButton = UIButton()
     private let datePicker = UIDatePicker()
-    private let searchField = UITextField()
-    private let image = UIImageView()
-    private let smallTitle = UILabel()
+    private let searchStack = UIStackView()
+    private let searchField = UISearchTextField()
+    private let imageStar = UIImageView()
+    private let emptyStateLabel = UILabel()
     private let filterButton = UIButton()
+    private let imageFinder = UIImageView()
+    private let textFinder = UILabel()
+    private let cancelButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Отменить", for: .normal)
+        button.setTitleColor(.systemBlue, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17)
+        button.isHidden = true
+        return button
+    }()
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 9
@@ -45,18 +62,18 @@ final class TrackersViewController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
         setupUI()
         keyboardHandler.setup(for: self)
-        searchField.delegate = keyboardHandler
+        keyboardHandler.delegate = self
         trackerStore.delegate = self
         trackerRecordStore.delegate = self
         loadInitialData()
-        updateFilteredCategories(for: currentDate)
     }
     // MARK: - UI Setup
     
     private func setupUI() {
         view.backgroundColor = .white
-        view.addSubviews(largeTitle, plusButton, datePicker, searchField, collectionView, image, smallTitle, filterButton)
-        [largeTitle, plusButton, datePicker, searchField, collectionView, image, smallTitle, filterButton].disableAutoResizingMasks()
+        view.addSubviews(largeTitle, plusButton, datePicker, searchStack, collectionView, imageStar, emptyStateLabel, imageFinder, textFinder, filterButton)
+        [largeTitle, plusButton, datePicker, searchStack, cancelButton, collectionView, imageStar, emptyStateLabel, imageFinder, textFinder, filterButton].disableAutoResizingMasks()
+        setupEmptyFinder()
         setupEmptyState()
         setupLargeTitle()
         setupPlusButton()
@@ -85,6 +102,17 @@ final class TrackersViewController: UIViewController {
     }
     
     private func setupSearchField() {
+        searchStack.axis = .horizontal
+        searchStack.spacing = 5
+        searchStack.alignment = .fill
+        searchStack.distribution = .fill
+        
+        searchStack.addArrangedSubview(searchField)
+        searchStack.addArrangedSubview(cancelButton)
+        
+        cancelButton.isHidden = true
+        cancelButton.setContentHuggingPriority(.required, for: .horizontal)
+        
         searchField.placeholder = "Поиск"
         searchField.layer.cornerRadius = 10
         searchField.layer.masksToBounds = true
@@ -92,10 +120,11 @@ final class TrackersViewController: UIViewController {
         
         let imageView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
         imageView.tintColor = .gray
-        imageView.frame = CGRect(x: 8, y: 2, width: 15, height: 15)
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 20))
         paddingView.addSubview(imageView)
         
+        cancelButton.addTarget(self, action: #selector(didTapCancel), for: .touchUpInside)
+        searchField.delegate = self
         searchField.leftView = paddingView
         searchField.leftViewMode = .always
         searchField.clearButtonMode = .whileEditing
@@ -103,10 +132,25 @@ final class TrackersViewController: UIViewController {
     }
     
     private func setupEmptyState() {
-        image.image = UIImage(named: "Star")
-        smallTitle.text = "Что будем отслеживать?"
-        smallTitle.font = .systemFont(ofSize: 12)
-        smallTitle.textColor = .black
+        imageStar.image = UIImage(resource: .star)
+        emptyStateLabel.text = "Что будем отслеживать?"
+        emptyStateLabel.font = .systemFont(ofSize: 12)
+        emptyStateLabel.textColor = .black
+    }
+    
+    private func setupEmptyFinder() {
+        imageFinder.image = UIImage(resource: .filterEmoji)
+        textFinder.text = "Ничего не найдено"
+        textFinder.font = .systemFont(ofSize: 12)
+        textFinder.textColor = .black
+        textFinder.textAlignment = .center
+        
+        imageFinder.isHidden = true
+        textFinder.isHidden = true
+    }
+    
+    private func showCancelButton(_ show: Bool) {
+        cancelButton.isHidden = !show
     }
     
     private func setupFilterButton() {
@@ -115,15 +159,25 @@ final class TrackersViewController: UIViewController {
         filterButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .medium)
         filterButton.backgroundColor = .systemBlue
         filterButton.layer.cornerRadius = 16
-        filterButton.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func updateEmptyState() {
         let hasVisibleTrackers = !filteredCategories.flatMap { $0.trackers }.isEmpty
+        
         collectionView.isHidden = !hasVisibleTrackers
-        image.isHidden = hasVisibleTrackers
-        smallTitle.isHidden = hasVisibleTrackers
         filterButton.isHidden = !hasVisibleTrackers
+        
+        if isSearching {
+            imageFinder.isHidden = hasVisibleTrackers
+            textFinder.isHidden = hasVisibleTrackers
+            imageStar.isHidden = true
+            emptyStateLabel.isHidden = true
+        } else {
+            imageStar.isHidden = hasVisibleTrackers
+            emptyStateLabel.isHidden = hasVisibleTrackers
+            imageFinder.isHidden = true
+            textFinder.isHidden = true
+        }
     }
     
     private func setupLayoutConstraints() {
@@ -141,21 +195,27 @@ final class TrackersViewController: UIViewController {
             largeTitle.topAnchor.constraint(equalTo: guide.topAnchor, constant: 44),
             largeTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             
-            searchField.topAnchor.constraint(equalTo: largeTitle.bottomAnchor, constant: 7),
-            searchField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            searchField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            searchField.heightAnchor.constraint(equalToConstant: 36),
+            searchStack.topAnchor.constraint(equalTo: largeTitle.bottomAnchor, constant: 7),
+            searchStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            searchStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            searchStack.heightAnchor.constraint(equalToConstant: 36),
             
-            collectionView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 16),
+            collectionView.topAnchor.constraint(equalTo: searchStack.bottomAnchor, constant: 16),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: guide.bottomAnchor),
             
-            image.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            image.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -20),
+            imageStar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageStar.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -20),
             
-            smallTitle.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 8),
-            smallTitle.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emptyStateLabel.topAnchor.constraint(equalTo: imageStar.bottomAnchor, constant: 8),
+            emptyStateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            imageFinder.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageFinder.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            textFinder.topAnchor.constraint(equalTo: imageFinder.bottomAnchor, constant: 8),
+            textFinder.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             filterButton.widthAnchor.constraint(equalToConstant: 114),
             filterButton.heightAnchor.constraint(equalToConstant: 50),
@@ -171,11 +231,15 @@ final class TrackersViewController: UIViewController {
         updateFilteredCategories(for: currentDate)
     }
     
-    private func updateFilteredCategories(for date: Date) {
+    private func calculateWeekday(from date: Date) -> WeekDay {
         let calendar = Calendar.current
         let selectedWeekday = calendar.component(.weekday, from: date)
-        let weekday = WeekDay(rawValue: (selectedWeekday + 5) % 7 + 1) ?? .monday
+        return WeekDay(rawValue: (selectedWeekday + 5) % 7 + 1) ?? .monday
+    }
+    
+    private func updateFilteredCategories(for date: Date) {
         let searchText = searchField.text?.lowercased() ?? ""
+        let weekday = calculateWeekday(from: date)
         
         filteredCategories = categories.map { category in
             let trackersForDay = category.trackers.filter { tracker in
@@ -225,7 +289,14 @@ final class TrackersViewController: UIViewController {
         updateFilteredCategories(for: currentDate)
     }
     
+    @objc private func didTapCancel() {
+        searchField.text = ""
+        searchField.resignFirstResponder()
+        showCancelButton(false)
+        updateFilteredCategories(for: currentDate)
+    }
 }
+
 // MARK: - UICollectionViewDataSource
 
 extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -328,6 +399,17 @@ final class TrackerSectionHeader: UICollectionReusableView {
 }
 // MARK: - Delegates
 
+extension TrackersViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        showCancelButton(true)
+    }
+}
+extension TrackersViewController: KeyboardHandlerDelegate {
+    func didEndEditing() {
+        showCancelButton(false)
+    }
+}
+
 extension TrackersViewController: TrackerCategoryStoreDelegate {
     func didUpdateCategories() {
         categories = trackerCategoryStore.categories
@@ -337,7 +419,6 @@ extension TrackersViewController: TrackerCategoryStoreDelegate {
 
 extension TrackersViewController: TrackerStoreDelegate {
     func didUpdateTrackers() {
-        trackers = trackerStore.trackers
         updateFilteredCategories(for: currentDate)
     }
 }
