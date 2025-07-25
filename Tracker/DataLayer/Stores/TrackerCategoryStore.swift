@@ -68,6 +68,28 @@ final class TrackerCategoryStore: NSObject {
         }
     }
     
+    func renameCategory(withId id: UUID, to newTitle: String) {
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        if let category = try? context.fetch(request).first {
+            category.title = newTitle
+            CoreDataStack.shared.saveContext()
+            delegate?.didUpdateCategories()
+        }
+    }
+
+    func deleteCategory(withId id: UUID) {
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        if let category = try? context.fetch(request).first {
+            context.delete(category)
+            CoreDataStack.shared.saveContext()
+            delegate?.didUpdateCategories()
+        }
+    }
+    
     private static func categoryFetchRequest(title: String) -> NSFetchRequest<TrackerCategoryCoreData> {
         let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "title == %@", title)

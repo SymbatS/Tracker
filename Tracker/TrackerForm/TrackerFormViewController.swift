@@ -18,6 +18,7 @@ final class TrackerFormViewController: UIViewController {
     private let containerView = UIView()
     private let scrollView = UIScrollView()
     private let contentStackView = UIStackView()
+    private let keyboardHandler = KeyboardHandler()
     
     private var habitName = ""
     private var categoryTitle: String?
@@ -44,6 +45,8 @@ final class TrackerFormViewController: UIViewController {
         ]
         title = config.title
         navigationItem.hidesBackButton = true
+        keyboardHandler.setup(for: self)
+        nameTextField.delegate = keyboardHandler
         emojiCollectionView.delegate = self
         colorPickerCollectionView.delegate = self
         setupUI()
@@ -317,6 +320,7 @@ final class TrackerFormViewController: UIViewController {
     
     @objc private func categoryTapped() {
         let vc = CategorySelectionViewController()
+        vc.selectedCategoryTitle = selectedCategory
         vc.onCategorySelected = { [weak self] selectedCategory in
             guard let self = self else { return }
             self.selectedCategory = selectedCategory
@@ -349,6 +353,7 @@ final class TrackerFormViewController: UIViewController {
     
     @objc private func scheduleTapped() {
         let vc = ScheduleViewController()
+        vc.selectedDays = self.selectedSchedule
         vc.onSave = { [weak self] selectedDays in
             guard let self = self else { return }
             self.selectedSchedule = selectedDays

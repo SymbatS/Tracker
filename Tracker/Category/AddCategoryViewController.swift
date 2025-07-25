@@ -5,6 +5,7 @@ final class AddCategoryViewController: UIViewController {
     var onCategoryCreated: ((String) -> Void)?
     
     private let textField = UITextField()
+    private let keyboardHandler = KeyboardHandler()
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Готово", for: .normal)
@@ -20,6 +21,8 @@ final class AddCategoryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.hidesBackButton = true
+        keyboardHandler.setup(for: self)
+        textField.delegate = keyboardHandler
         setupUI()
     }
     
