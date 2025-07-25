@@ -320,6 +320,7 @@ final class TrackerFormViewController: UIViewController {
     
     @objc private func categoryTapped() {
         let vc = CategorySelectionViewController()
+        vc.selectedCategoryTitle = selectedCategory
         vc.onCategorySelected = { [weak self] selectedCategory in
             guard let self = self else { return }
             self.selectedCategory = selectedCategory
@@ -352,6 +353,7 @@ final class TrackerFormViewController: UIViewController {
     
     @objc private func scheduleTapped() {
         let vc = ScheduleViewController()
+        vc.selectedDays = self.selectedSchedule
         vc.onSave = { [weak self] selectedDays in
             guard let self = self else { return }
             self.selectedSchedule = selectedDays

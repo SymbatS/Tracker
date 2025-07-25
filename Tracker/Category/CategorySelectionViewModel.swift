@@ -25,6 +25,14 @@ final class CategorySelectionViewModel {
     func createCategory(title: String) {
         _ = categoryStore.fetchOrCreateCategory(with: title)
     }
+    
+    func renameCategory(id: UUID, newTitle: String) {
+        categoryStore.renameCategory(withId: id, to: newTitle)
+    }
+    
+    func deleteCategory(id: UUID) {
+        categoryStore.deleteCategory(withId: id)
+    }
 }
 
 extension CategorySelectionViewModel: TrackerCategoryStoreDelegate {

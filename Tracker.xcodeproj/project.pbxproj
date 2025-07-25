@@ -39,6 +39,11 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		3DE847E82E31C8E900F9CFB8 /* Onboarding */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +60,7 @@
 		3D802D742DFD63AF0097D5C6 = {
 			isa = PBXGroup;
 			children = (
+				3DE847E82E31C8E900F9CFB8 /* Onboarding */,
 				3DE846172E2A041400F9CFB8 /* Models */,
 				3DE846162E2A03A300F9CFB8 /* Statistic */,
 				3D802D7F2DFD63AF0097D5C6 /* Tracker */,
@@ -89,6 +95,7 @@
 				3D802D7F2DFD63AF0097D5C6 /* Tracker */,
 				3DE846162E2A03A300F9CFB8 /* Statistic */,
 				3DE846172E2A041400F9CFB8 /* Models */,
+				3DE847E82E31C8E900F9CFB8 /* Onboarding */,
 			);
 			name = Tracker;
 			packageProductDependencies = (
