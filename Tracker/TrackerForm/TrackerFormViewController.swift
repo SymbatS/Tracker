@@ -3,8 +3,9 @@ import UIKit
 final class TrackerFormViewController: UIViewController {
     
     weak var delegate: CreateTrackerDelegate?
-    
+    private let viewModel: TrackerFormViewModel
     private let config: TrackerFormConfiguration
+    private let keyboardHandler = KeyboardHandler()
     
     private let nameTextField = UITextField()
     private let errorLabel = UILabel()
@@ -18,19 +19,12 @@ final class TrackerFormViewController: UIViewController {
     private let containerView = UIView()
     private let scrollView = UIScrollView()
     private let contentStackView = UIStackView()
-    private let keyboardHandler = KeyboardHandler()
-    
-    private var habitName = ""
-    private var categoryTitle: String?
     private var categoryButton = UIButton()
     private var scheduleButton = UIButton()
-    private var selectedSchedule: Set<WeekDay> = []
-    private var selectedCategory: String?
-    private var selectedEmoji: String?
-    private var selectedColor: UIColor?
     
     init(config: TrackerFormConfiguration) {
         self.config = config
+        self.viewModel = TrackerFormViewModel(config: config)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -43,18 +37,46 @@ final class TrackerFormViewController: UIViewController {
         navigationController?.navigationBar.titleTextAttributes = [
             .font: UIFont.systemFont(ofSize: 16)
         ]
-        title = config.title
         navigationItem.hidesBackButton = true
         keyboardHandler.setup(for: self)
         nameTextField.delegate = keyboardHandler
-        emojiCollectionView.delegate = self
-        colorPickerCollectionView.delegate = self
+        
         setupUI()
-        prefillDataIfEditing()
+        bindViewModel()
+        viewModel.prefillFields()
+        title = viewModel.title
+    }
+    
+    private func bindViewModel() {
+        viewModel.onFormValidityChanged = { [weak self] isValid in
+            self?.saveButton.isEnabled = isValid
+            self?.saveButton.backgroundColor = isValid ? .black : .gray
+        }
+        
+        viewModel.onErrorMessageChanged = { [weak self] message in
+            self?.errorLabel.text = message
+            self?.errorLabel.isHidden = message == nil
+        }
+        
+        viewModel.onCategoryUpdated = { [weak self] category in
+            self?.updateCategoryButton(with: category)
+        }
+        
+        viewModel.onScheduleUpdated = { [weak self] formatted in
+            self?.updateScheduleButton(with: formatted)
+        }
+        
+        viewModel.onFormSubmitted = { [weak self] tracker in
+            self?.delegate?.didCreateTracker(tracker)
+            self?.delegate?.didFinishCreation()
+            self?.dismiss(animated: true)
+        }
     }
     
     private func setupUI() {
         view.backgroundColor = .white
+        emojiCollectionView.delegate = self
+        colorPickerCollectionView.delegate = self
         
         nameTextField.layer.cornerRadius = 16
         nameTextField.placeholder = "Введите название трекера"
@@ -296,169 +318,55 @@ final class TrackerFormViewController: UIViewController {
         return button
     }
     
-    private func validateForm() {
-        let isValid = !habitName.isEmpty &&
-        selectedEmoji != nil &&
-        selectedColor != nil &&
-        selectedCategory != nil &&
-        (config.showSchedule ? !selectedSchedule.isEmpty : true)
-        
-        saveButton.isEnabled = isValid
-        saveButton.backgroundColor = isValid ? .black : .gray
+    @objc private func textFieldDidChange(_ textField: UITextField) {
+        viewModel.updateName(textField.text ?? "")
     }
     
-    private func prefillDataIfEditing() {
-        guard let tracker = config.existingTracker else { return }
-        nameTextField.text = tracker.name
-        habitName = tracker.name
-        selectedEmoji = tracker.emoji
-        selectedColor = tracker.color
-        selectedCategory = tracker.category
-        selectedSchedule = tracker.schedule
-
-        emojiCollectionView.selectEmoji(tracker.emoji)
-        colorPickerCollectionView.selectColor(tracker.color)
-        updateCategoryButton()
-        updateScheduleButton()
-        validateForm()
+    @objc private func saveTapped() {
+        viewModel.submitForm()
     }
-
-    private func updateCategoryButton() {
-        guard let category = selectedCategory,
-              let label = categoryButton.subviews.compactMap({ $0 as? UILabel }).first else { return }
-
+    
+    private func updateCategoryButton(with category: String) {
+        guard let label = categoryButton.subviews.compactMap({ $0 as? UILabel }).first else { return }
+        
         let title = NSAttributedString(string: "Категория\n", attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.black])
         let subtitle = NSAttributedString(string: category, attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.gray])
-
+        
         let fullText = NSMutableAttributedString()
         fullText.append(title)
         fullText.append(subtitle)
         label.attributedText = fullText
-    }
-
-    private func updateScheduleButton() {
-        guard let label = scheduleButton.subviews.compactMap({ $0 as? UILabel }).first else { return }
-        let short: String = selectedSchedule.count == 7 ? "Каждый день" : selectedSchedule.sorted { $0.rawValue < $1.rawValue }.map { $0.shortTitle }.joined(separator: ", ")
-
-        let title = NSAttributedString(string: "Расписание\n", attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.black])
-        let subtitle = NSAttributedString(string: short, attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.gray])
-
-        let fullText = NSMutableAttributedString()
-        fullText.append(title)
-        fullText.append(subtitle)
-        label.attributedText = fullText
-    }
-
-    @objc private func saveTapped() {
-        guard let emoji = selectedEmoji, let color = selectedColor, let category = selectedCategory else { return }
-
-        let tracker = Tracker(
-            id: config.existingTracker?.id ?? UUID(),
-            name: habitName,
-            color: color,
-            emoji: emoji,
-            schedule: config.showSchedule ? selectedSchedule : [],
-            category: category,
-            type: config.type,
-            isPinned: config.existingTracker?.isPinned ?? false
-        )
-
-        delegate?.didCreateTracker(tracker)
-        delegate?.didFinishCreation()
-        dismiss(animated: true)
     }
     
-    @objc private func textFieldDidChange(_ textField: UITextField) {
-        habitName = textField.text ?? ""
-        if habitName.count > 38 {
-            textField.text = String(habitName.prefix(38))
-            errorLabel.text = "Ограничение 38 символов"
-            errorLabel.isHidden = false
-        } else {
-            errorLabel.isHidden = true
-        }
-        validateForm()
+    private func updateScheduleButton(with text: String) {
+        guard let label = scheduleButton.subviews.compactMap({ $0 as? UILabel }).first else { return }
+        
+        let title = NSAttributedString(string: "Расписание\n", attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.black])
+        let subtitle = NSAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.gray])
+        
+        let fullText = NSMutableAttributedString()
+        fullText.append(title)
+        fullText.append(subtitle)
+        label.attributedText = fullText
     }
     
     @objc private func categoryTapped() {
         let vc = CategorySelectionViewController()
-        vc.selectedCategoryTitle = selectedCategory
-        vc.onCategorySelected = { [weak self] selectedCategory in
-            guard let self = self else { return }
-            self.selectedCategory = selectedCategory
-            self.validateForm()
-            if let label = self.categoryButton.subviews.compactMap({ $0 as? UILabel }).first {
-                let title = NSAttributedString(
-                    string: "Категория\n",
-                    attributes: [
-                        .font: UIFont.systemFont(ofSize: 17),
-                        .foregroundColor: UIColor.black
-                    ]
-                )
-                
-                let subtitle = NSAttributedString(
-                    string: selectedCategory,
-                    attributes: [
-                        .font: UIFont.systemFont(ofSize: 17),
-                        .foregroundColor: UIColor.gray
-                    ]
-                )
-                
-                let fullText = NSMutableAttributedString()
-                fullText.append(title)
-                fullText.append(subtitle)
-                label.attributedText = fullText
-            }
+        vc.selectedCategoryTitle = viewModel.selectedCategory
+        vc.onCategorySelected = { [weak self] category in
+            self?.viewModel.selectCategory(category)
         }
         navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc private func scheduleTapped() {
         let vc = ScheduleViewController()
-        vc.selectedDays = self.selectedSchedule
-        vc.onSave = { [weak self] selectedDays in
-            guard let self = self else { return }
-            self.selectedSchedule = selectedDays
-            self.validateForm()
-            let short: String
-            if selectedDays.count == 7 {
-                short = "Каждый день"
-            } else {
-                short = selectedDays
-                    .sorted { $0.rawValue < $1.rawValue }
-                    .map { $0.shortTitle }
-                    .joined(separator: ", ")
-            }
-            
-            let fullText = NSMutableAttributedString()
-            
-            let title = NSAttributedString(
-                string: "Расписание\n",
-                attributes: [
-                    .font: UIFont.systemFont(ofSize: 17),
-                    .foregroundColor: UIColor.black
-                ]
-            )
-            
-            let subtitle = NSAttributedString(
-                string: short,
-                attributes: [
-                    .font: UIFont.systemFont(ofSize: 17),
-                    .foregroundColor: UIColor.gray
-                ]
-            )
-            
-            fullText.append(title)
-            fullText.append(subtitle)
-            
-            if let label = self.scheduleButton.subviews.compactMap({ $0 as? UILabel }).first {
-                label.attributedText = fullText
-            }
+        vc.selectedDays = viewModel.selectedSchedule
+        vc.onSave = { [weak self] days in
+            self?.viewModel.selectSchedule(days)
         }
-        
         navigationController?.pushViewController(vc, animated: true)
     }
-    
     @objc private func cancelTapped() {
         dismiss(animated: true)
     }
@@ -466,14 +374,12 @@ final class TrackerFormViewController: UIViewController {
 
 extension TrackerFormViewController: EmojiCollectionViewDelegate {
     func didSelectEmoji(_ emoji: String) {
-        selectedEmoji = emoji
-        validateForm()
+        viewModel.selectEmoji(emoji)
     }
 }
 
 extension TrackerFormViewController: ColorPickerCollectionViewDelegate {
     func didSelectColor(_ color: UIColor) {
-        selectedColor = color
-        validateForm()
+        viewModel.selectColor(color)
     }
 }
