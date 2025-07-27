@@ -2,6 +2,7 @@ import UIKit
 
 protocol CreateTrackerDelegate: AnyObject {
     func didCreateTracker(_ tracker: Tracker)
+    func didUpdateTracker(_ tracker: Tracker)
     func didFinishCreation()
 }
 

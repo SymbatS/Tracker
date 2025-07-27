@@ -179,6 +179,33 @@ final class TrackersViewController: UIViewController {
             textFinder.isHidden = true
         }
     }
+
+    private func presentEditTrackerVC(_ tracker: Tracker) {
+        let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
+        let editVC = EditTrackerViewController(tracker: tracker, completedDays: completedDays)
+        editVC.delegate = self
+        let nav = UINavigationController(rootViewController: editVC)
+        present(nav, animated: true)
+    }
+
+    private func confirmDeleteTracker(_ tracker: Tracker) {
+        let alert = UIAlertController(title: "Уверены что хотите удалить трекер?",
+                                      message: nil,
+                                      preferredStyle: .actionSheet)
+
+        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { _ in
+            do {
+                try self.trackerStore.deleteTracker(tracker)
+                self.categories = self.trackerCategoryStore.categories
+                self.updateFilteredCategories(for: self.currentDate)
+            } catch {
+                print("Ошибка удаления трекера: \(error)")
+            }
+        })
+
+        alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        present(alert, animated: true)
+    }
     
     private func setupLayoutConstraints() {
         let guide = view.safeAreaLayoutGuide
@@ -240,34 +267,33 @@ final class TrackersViewController: UIViewController {
     private func updateFilteredCategories(for date: Date) {
         let searchText = searchField.text?.lowercased() ?? ""
         let weekday = calculateWeekday(from: date)
-        
-        filteredCategories = categories.map { category in
-            let trackersForDay = category.trackers.filter { tracker in
-                let isIrregularEvent = tracker.schedule.isEmpty
-                let isScheduledForToday = tracker.schedule.contains(weekday)
-                let matchesSearch = searchText.isEmpty || tracker.name.lowercased().contains(searchText)
-                
-                let wasTracked = completedTrackers.contains { record in
-                    record.id == tracker.id
-                }
-                
-                let wasTrackedToday = completedTrackers.contains { record in
-                    record.id == tracker.id && Calendar.current.isDate(record.date, inSameDayAs: date)
-                }
-                
-                let shouldShow: Bool
-                
-                if isIrregularEvent {
-                    shouldShow = !wasTracked || wasTrackedToday
-                } else {
-                    shouldShow = isScheduledForToday
-                }
-                
-                return shouldShow && matchesSearch
+
+        let pinnedTrackers = categories
+            .flatMap { $0.trackers }
+            .filter {
+                $0.isPinned &&
+                ($0.schedule.isEmpty || $0.schedule.contains(weekday)) &&
+                (searchText.isEmpty || $0.name.lowercased().contains(searchText))
             }
-            return TrackerCategory(id: category.id, title: category.title, trackers: trackersForDay)
-        }.filter { !$0.trackers.isEmpty }
-        
+
+        let regularCategories = categories
+            .map { category -> TrackerCategory in
+                let filteredTrackers = category.trackers.filter {
+                    !$0.isPinned &&
+                    ($0.schedule.isEmpty || $0.schedule.contains(weekday)) &&
+                    (searchText.isEmpty || $0.name.lowercased().contains(searchText))
+                }
+                return TrackerCategory(id: category.id, title: category.title, trackers: filteredTrackers)
+            }
+            .filter { !$0.trackers.isEmpty }
+
+        var result: [TrackerCategory] = []
+        if !pinnedTrackers.isEmpty {
+            result.append(TrackerCategory(id: UUID(), title: "Закреплённые", trackers: pinnedTrackers))
+        }
+        result.append(contentsOf: regularCategories)
+
+        filteredCategories = result
         collectionView.reloadData()
         updateEmptyState()
     }
@@ -375,6 +401,44 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
         }
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self = self else { return nil }
+
+            let isPinned = tracker.isPinned
+            let pinTitle = isPinned ? "Открепить" : "Закрепить"
+
+            let pinAction = UIAction(title: pinTitle) { _ in
+                do {
+                    try self.trackerStore.togglePin(for: tracker)
+                    self.categories = self.trackerCategoryStore.categories
+                    self.updateFilteredCategories(for: self.currentDate)
+                } catch {
+                    print("Ошибка при закреплении: \(error)")
+                }
+            }
+
+            let editAction = UIAction(title: "Редактировать") { _ in
+                self.presentEditTrackerVC(tracker)
+            }
+
+            let deleteAction = UIAction(
+                title: "Удалить",
+                attributes: .destructive
+            ) { _ in
+                self.confirmDeleteTracker(tracker)
+            }
+
+            return UIMenu(title: "", children: [pinAction, editAction, deleteAction])
+        }
+    }
 }
 
 final class TrackerSectionHeader: UICollectionReusableView {
@@ -419,6 +483,7 @@ extension TrackersViewController: TrackerCategoryStoreDelegate {
 
 extension TrackersViewController: TrackerStoreDelegate {
     func didUpdateTrackers() {
+        self.categories = self.trackerCategoryStore.categories
         updateFilteredCategories(for: currentDate)
     }
 }
@@ -431,12 +496,22 @@ extension TrackersViewController: TrackerRecordStoreDelegate {
 }
 
 extension TrackersViewController: CreateTrackerDelegate {
+    func didUpdateTracker(_ tracker: Tracker) {
+        let categoryCoreData = trackerCategoryStore.fetchOrCreateCategory(with: tracker.category)
+        do {
+            try trackerStore.updateTracker(tracker, to: categoryCoreData)
+            categories = trackerCategoryStore.categories
+            updateFilteredCategories(for: currentDate)
+        } catch {
+            print("Ошибка при обновлении трекера: \(error)")
+        }
+    }
+    
     func didCreateTracker(_ tracker: Tracker) {
         let categoryCoreData = trackerCategoryStore.fetchOrCreateCategory(with: tracker.category)
         
         do {
             try trackerStore.addTracker(tracker, to: categoryCoreData)
-            loadInitialData()
         } catch {
             print("Ошибка при сохранении трекера: \(error)")
         }

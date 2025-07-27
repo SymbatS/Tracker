@@ -16,10 +16,10 @@ final class TrackerCoreDataAdapter {
         else {
             return nil
         }
-        
+
         let scheduleRaw = (object.schedule as? [NSNumber])?.compactMap { WeekDay(rawValue: $0.intValue) } ?? []
         let scheduleSet = Set(scheduleRaw)
-        
+
         return Tracker(
             id: id,
             name: name,
@@ -27,7 +27,8 @@ final class TrackerCoreDataAdapter {
             emoji: emoji,
             schedule: scheduleSet,
             category: categoryTitle,
-            type: type
+            type: type,
+            isPinned: object.isPinned
         )
     }
     
@@ -38,7 +39,7 @@ final class TrackerCoreDataAdapter {
         object.color = tracker.color.toHexString()
         object.type = tracker.type.rawValue
         object.schedule = tracker.schedule.map { NSNumber(value: $0.rawValue) } as NSArray
-        
+        object.isPinned = tracker.isPinned
         let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "title == %@", tracker.category)
         

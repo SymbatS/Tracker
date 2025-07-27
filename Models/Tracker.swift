@@ -8,6 +8,7 @@ struct Tracker {
     let schedule: Set<WeekDay>
     let category: String
     let type: TrackerType
+    let isPinned: Bool
 }
 
 enum WeekDay: Int, CaseIterable {

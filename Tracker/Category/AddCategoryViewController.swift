@@ -3,16 +3,17 @@ import UIKit
 final class AddCategoryViewController: UIViewController {
     
     var onCategoryCreated: ((String) -> Void)?
-    
-    private let textField = UITextField()
+
+    private let viewModel = AddCategoryViewModel()
     private let keyboardHandler = KeyboardHandler()
+
+    private let textField = UITextField()
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Готово", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .boldSystemFont(ofSize: 16)
         button.layer.cornerRadius = 16
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.isEnabled = false
         button.backgroundColor = .lightGray
         return button
@@ -20,15 +21,16 @@ final class AddCategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.hidesBackButton = true
         keyboardHandler.setup(for: self)
-        textField.delegate = keyboardHandler
+        
         setupUI()
+        bindViewModel()
     }
     
     private func setupUI() {
         view.backgroundColor = .white
         title = "Новая категория"
+        navigationItem.hidesBackButton = true
         
         textField.backgroundColor = UIColor(red: 230/255, green: 232/255, blue: 235/255, alpha: 0.3)
         textField.placeholder = "Введите название категории"
@@ -60,22 +62,22 @@ final class AddCategoryViewController: UIViewController {
             doneButton.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -16)
         ])
     }
-    
-    @objc private func saveTapped() {
-        guard let text = textField.text?.trimmingCharacters(in: .whitespaces), !text.isEmpty else { return }
-        onCategoryCreated?(text)
-        navigationController?.popViewController(animated: true)
-    }
-    
-    
-    @objc private func textFieldDidChange(_ textField: UITextField) {
-        let trimmed = textField.text?.trimmingCharacters(in: .whitespaces) ?? ""
-        let isValid = !trimmed.isEmpty
-        doneButton.isEnabled = isValid
-        doneButton.backgroundColor = isValid ? .black : .gray
-        
-        if trimmed.count > 38 {
-            textField.text = String(trimmed.prefix(38))
+
+    private func bindViewModel() {
+        viewModel.onValidationChanged = { [weak self] isValid in
+            self?.doneButton.isEnabled = isValid
+            self?.doneButton.backgroundColor = isValid ? .black : .lightGray
         }
+    }
+
+    @objc private func textFieldDidChange(_ textField: UITextField) {
+        viewModel.updateCategoryName(textField.text ?? "")
+    }
+
+    @objc private func saveTapped() {
+        let finalText = viewModel.getTrimmedName()
+        guard !finalText.isEmpty else { return }
+        onCategoryCreated?(finalText)
+        navigationController?.popViewController(animated: true)
     }
 }

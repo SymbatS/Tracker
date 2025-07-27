@@ -52,6 +52,12 @@ final class ColorPickerCollectionView: UIView, UICollectionViewDelegate, UIColle
         ])
     }
     
+    func selectColor(_ color: UIColor) {
+        guard let index = colorHexList.firstIndex(where: { UIColor(hex: $0)?.cgColor == color.cgColor }) else { return }
+        selectedIndex = IndexPath(item: index, section: 0)
+        collectionView.reloadData()
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return colorHexList.count
     }
