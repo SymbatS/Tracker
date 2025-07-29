@@ -3,10 +3,10 @@ import UIKit
 final class AddCategoryViewController: UIViewController {
     
     var onCategoryCreated: ((String) -> Void)?
-
-    private let viewModel = AddCategoryViewModel()
+    
+    private let viewModel: AddCategoryViewModel
     private let keyboardHandler = KeyboardHandler()
-
+    
     private let textField = UITextField()
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
@@ -18,6 +18,17 @@ final class AddCategoryViewController: UIViewController {
         button.backgroundColor = .lightGray
         return button
     }()
+    
+    // MARK: - Init
+    
+    init(viewModel: AddCategoryViewModel = AddCategoryViewModel()) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,18 +73,18 @@ final class AddCategoryViewController: UIViewController {
             doneButton.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -16)
         ])
     }
-
+    
     private func bindViewModel() {
         viewModel.onValidationChanged = { [weak self] isValid in
             self?.doneButton.isEnabled = isValid
             self?.doneButton.backgroundColor = isValid ? .black : .lightGray
         }
     }
-
+    
     @objc private func textFieldDidChange(_ textField: UITextField) {
         viewModel.updateCategoryName(textField.text ?? "")
     }
-
+    
     @objc private func saveTapped() {
         let finalText = viewModel.getTrimmedName()
         guard !finalText.isEmpty else { return }

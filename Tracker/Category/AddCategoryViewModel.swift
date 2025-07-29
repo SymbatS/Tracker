@@ -1,9 +1,9 @@
 import Foundation
 
 final class AddCategoryViewModel {
-
+    
     var onValidationChanged: ((Bool) -> Void)?
-
+    
     private(set) var categoryName: String = "" {
         didSet {
             let trimmed = categoryName.trimmingCharacters(in: .whitespaces)
@@ -11,11 +11,11 @@ final class AddCategoryViewModel {
             onValidationChanged?(isValid)
         }
     }
-
+    
     func updateCategoryName(_ text: String) {
         categoryName = String(text.prefix(38))
     }
-
+    
     func getTrimmedName() -> String {
         return categoryName.trimmingCharacters(in: .whitespaces)
     }

@@ -7,11 +7,7 @@ final class EditCategoryViewModel {
     
     func updateText(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespaces)
-        if trimmed.count > 38 {
-            currentText = String(trimmed.prefix(38))
-        } else {
-            currentText = trimmed
-        }
+        currentText = trimmed.count > 38 ? String(trimmed.prefix(38)) : trimmed
         onValidationChanged?(!currentText.isEmpty)
     }
     

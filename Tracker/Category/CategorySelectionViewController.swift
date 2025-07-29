@@ -130,12 +130,7 @@ extension CategorySelectionViewController: UITableViewDataSource, UITableViewDel
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
         let category = categories[indexPath.row]
         cell.textLabel?.text = category.title
-        
-        if category.title == selectedCategoryTitle {
-            cell.accessoryType = .checkmark
-        } else {
-            cell.accessoryType = .none
-        }
+        cell.accessoryType = category.title == selectedCategoryTitle ? .checkmark : .none
         
         return cell
     }

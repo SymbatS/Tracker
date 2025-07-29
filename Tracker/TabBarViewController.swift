@@ -49,12 +49,12 @@ final class TabBarViewController: UITabBarController {
         let trackersVC = TrackersViewController(viewModel: viewModel)
         let statsVC = StatsViewController()
         
-        self.viewControllers = [
+        viewControllers = [
             wrappedInNavigationController(with: trackersVC, title: "Трекеры"),
             wrappedInNavigationController(with: statsVC, title: "Статистика")
         ]
 
-        self.viewControllers?.enumerated().forEach {
+        viewControllers?.enumerated().forEach {
             let item = TabBarItem(rawValue: $0)!
             $1.tabBarItem.title = item.title
             $1.tabBarItem.image = UIImage(named: item.iconName)
