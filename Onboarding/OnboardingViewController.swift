@@ -90,11 +90,7 @@ final class OnboardingViewController: UIViewController {
     }
     
     @objc private func continueTapped() {
-        if currentIndex < pages.count - 1 {
-            currentIndex += 1
-            pageControl.currentPage = currentIndex
-            pageViewController.setViewControllers([pages[currentIndex]], direction: .forward, animated: true)
-        } else {
+        if currentIndex == 0 {
             UserDefaults.standard.set(true, forKey: "onboardingCompleted")
             let tabBarController = TabBarViewController()
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -103,9 +99,15 @@ final class OnboardingViewController: UIViewController {
             }
             window.rootViewController = tabBarController
             window.makeKeyAndVisible()
+            return
+        }
+
+        if currentIndex < pages.count - 1 {
+            currentIndex += 1
+            pageControl.currentPage = currentIndex
+            pageViewController.setViewControllers([pages[currentIndex]], direction: .forward, animated: true)
         }
     }
-    
 }
 
 extension OnboardingViewController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
