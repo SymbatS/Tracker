@@ -1,5 +1,9 @@
 import UIKit
 
+protocol KeyboardHandlerDelegate: AnyObject {
+    func didEndEditing()
+}
+
 final class KeyboardHandler: NSObject, UITextFieldDelegate {
     
     weak var delegate: KeyboardHandlerDelegate?

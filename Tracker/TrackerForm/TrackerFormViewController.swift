@@ -71,6 +71,25 @@ final class TrackerFormViewController: UIViewController {
             self?.delegate?.didFinishCreation()
             self?.dismiss(animated: true)
         }
+        viewModel.onPrefill = { [weak self] name, emoji, color, category, schedule in
+            guard let self else { return }
+
+            self.nameTextField.text = name
+            
+            if let emoji {
+                self.emojiCollectionView.selectEmoji(emoji)
+            }
+
+            if let color {
+                self.colorPickerCollectionView.selectColor(color)
+            }
+
+            if let category {
+                self.updateCategoryButton(with: category)
+            }
+
+            self.updateScheduleButton(with: self.viewModel.formattedSchedule(schedule))
+        }
     }
     
     private func setupUI() {

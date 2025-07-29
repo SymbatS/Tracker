@@ -34,26 +34,31 @@ final class TabBarViewController: UITabBarController {
     }
     
     private func setupTabBar() {
+        let context = CoreDataStack.shared.context
+
+        let trackerStore = TrackerStore(context: context)
+        let trackerCategoryStore = TrackerCategoryStore(context: context)
+        let trackerRecordStore = TrackerRecordStore(context: context)
+
+        let viewModel = TrackersViewModel(
+            trackerStore: trackerStore,
+            trackerCategoryStore: trackerCategoryStore,
+            trackerRecordStore: trackerRecordStore
+        )
         
-        let dataSource: [TabBarItem] = [.trackers, .stats]
+        let trackersVC = TrackersViewController(viewModel: viewModel)
+        let statsVC = StatsViewController()
         
-        self.viewControllers = dataSource.map {
-            
-            switch $0 {
-                
-            case .trackers:
-                let trackersViewController = TrackersViewController()
-                return self.wrappedInNavigationController(with: trackersViewController, title: $0.title)
-            case .stats:
-                let statsViewController = StatsViewController()
-                return self.wrappedInNavigationController(with: statsViewController, title: $0.title)
-            }
-        }
+        self.viewControllers = [
+            wrappedInNavigationController(with: trackersVC, title: "Трекеры"),
+            wrappedInNavigationController(with: statsVC, title: "Статистика")
+        ]
+
         self.viewControllers?.enumerated().forEach {
-            
-            $1.tabBarItem.title = dataSource[$0].title
-            $1.tabBarItem.image = UIImage(named: dataSource[$0].iconName)
-            $1.tabBarItem.imageInsets = UIEdgeInsets(top: 5, left: .zero, bottom: -5, right: .zero)
+            let item = TabBarItem(rawValue: $0)!
+            $1.tabBarItem.title = item.title
+            $1.tabBarItem.image = UIImage(named: item.iconName)
+            $1.tabBarItem.imageInsets = UIEdgeInsets(top: 5, left: 0, bottom: -5, right: 0)
         }
     }
     

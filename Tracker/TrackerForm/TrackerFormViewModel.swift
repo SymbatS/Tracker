@@ -119,7 +119,7 @@ final class TrackerFormViewModel {
         onFormValidityChanged?(isValid)
     }
     
-    private func formattedSchedule(_ days: Set<WeekDay>) -> String {
+    func formattedSchedule(_ days: Set<WeekDay>) -> String {
         if days.count == 7 {
             return "Каждый день"
         } else {
