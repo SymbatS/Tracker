@@ -2,9 +2,9 @@ import UIKit
 
 final class CategorySelectionViewController: UIViewController {
     
-    private let trackerCategoryStore = TrackerCategoryStore()
+    private let viewModel = CategorySelectionViewModel()
     private var categories: [TrackerCategory] = []
-    
+    var selectedCategoryTitle: String?
     var onCategorySelected: ((String) -> Void)?
     
     private let tableView = UITableView()
@@ -23,16 +23,14 @@ final class CategorySelectionViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        trackerCategoryStore.delegate = self
         navigationItem.hidesBackButton = true
         setupUI()
-        reloadCategories()
-    }
-    
-    private func reloadCategories() {
-        categories = trackerCategoryStore.categories
-        tableView.reloadData()
-        updateEmptyStateVisibility()
+        viewModel.onCategoriesUpdated = { [weak self] categories in
+            self?.categories = categories
+            self?.tableView.reloadData()
+            self?.updateEmptyStateVisibility()
+        }
+        viewModel.loadCategories()
     }
     
     private func setupUI() {
@@ -91,10 +89,33 @@ final class CategorySelectionViewController: UIViewController {
         tableView.isHidden = isEmpty
     }
     
+    private func presentEditScreen(for category: TrackerCategory) {
+        let editVC = EditCategoryViewController(category: category)
+        editVC.onRename = { [weak self] newTitle in
+            self?.viewModel.renameCategory(id: category.id, newTitle: newTitle)
+        }
+        navigationController?.pushViewController(editVC, animated: true)
+    }
+    
+    private func confirmDeleteCategory(at indexPath: IndexPath) {
+        let actionSheet = UIAlertController(
+            title: "Эта категория точно не нужна?",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        actionSheet.addAction(UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+            guard let self else { return }
+            let category = self.categories[indexPath.row]
+            self.viewModel.deleteCategory(id: category.id)
+        })
+        actionSheet.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        present(actionSheet, animated: true)
+    }
+    
     @objc private func addCategoryTapped() {
         let addVC = AddCategoryViewController()
         addVC.onCategoryCreated = { [weak self] newCategoryTitle in
-            _ = self?.trackerCategoryStore.fetchOrCreateCategory(with: newCategoryTitle)
+            self?.viewModel.createCategory(title: newCategoryTitle)
         }
         navigationController?.pushViewController(addVC, animated: true)
     }
@@ -106,19 +127,43 @@ extension CategorySelectionViewController: UITableViewDataSource, UITableViewDel
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
-        cell.textLabel?.text = categories[indexPath.row].title
+        let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
+        let category = categories[indexPath.row]
+        cell.textLabel?.text = category.title
+        cell.accessoryType = category.title == selectedCategoryTitle ? .checkmark : .none
+        
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        selectedCategoryTitle = categories[indexPath.row].title
         onCategorySelected?(categories[indexPath.row].title)
+        tableView.reloadData()
         navigationController?.popViewController(animated: true)
     }
-}
-
-extension CategorySelectionViewController: TrackerCategoryStoreDelegate {
-    func didUpdateCategories() {
-        reloadCategories()
+    
+    func tableView(
+        _ tableView: UITableView,
+        contextMenuConfigurationForRowAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        let category = categories[indexPath.row]
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self = self else { return nil }
+            
+            let edit = UIAction(title: "Редактировать") { _ in
+                self.presentEditScreen(for: category)
+            }
+            
+            let delete = UIAction(
+                title: "Удалить",
+                attributes: .destructive
+            ) { _ in
+                self.confirmDeleteCategory(at: indexPath)
+            }
+            
+            return UIMenu(title: "", children: [edit, delete])
+        }
     }
 }

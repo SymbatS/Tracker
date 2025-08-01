@@ -47,6 +47,13 @@ final class EmojiCollectionView: UIView, UICollectionViewDelegate, UICollectionV
         ])
     }
     
+    func selectEmoji(_ emoji: String) {
+        guard let index = emojiList.firstIndex(of: emoji) else { return }
+        let indexPath = IndexPath(item: index, section: 0)
+        selectedIndex = indexPath
+        collectionView.reloadData()
+    }
+    
     // MARK: UICollectionViewDataSource
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
