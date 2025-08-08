@@ -11,7 +11,7 @@ final class EditCategoryViewController: UIViewController {
     private let textField = UITextField()
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(NSLocalizedString("doneButtonTitle", comment: "Готово"), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .boldSystemFont(ofSize: 16)
         button.layer.cornerRadius = 16
@@ -31,7 +31,7 @@ final class EditCategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Редактирование категории"
+        title = NSLocalizedString("editCategoryTitle", comment: "Редактирование категории")
         view.backgroundColor = .white
         navigationItem.hidesBackButton = true
         keyboardHandler.setup(for: self)

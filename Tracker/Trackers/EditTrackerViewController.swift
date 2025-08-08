@@ -22,7 +22,7 @@ final class EditTrackerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Редактирование привычки"
+        title = NSLocalizedString("trackerFormEditTitle", comment: "Редактирование привычки")
         view.backgroundColor = .white
         
         setupUI()
@@ -30,7 +30,7 @@ final class EditTrackerViewController: UIViewController {
     
     private func setupUI() {
         let countLabel = UILabel()
-        countLabel.text = "\(completedDays) дней"
+        countLabel.text = String.localizedStringWithFormat(NSLocalizedString("days_count", comment: "Количество выполненных дней"), completedDays)
         countLabel.textAlignment = .center
         countLabel.font = .systemFont(ofSize: 32, weight: .bold)
         countLabel.translatesAutoresizingMaskIntoConstraints = false

@@ -17,13 +17,13 @@ final class CreateTrackerViewController: UIViewController {
     
     private func setupUI(){
         view.backgroundColor = .white
-        title = "Создание трекера"
+        title = NSLocalizedString("createTrackerTitle", comment: "Создание трекера")
         navigationController?.navigationBar.titleTextAttributes = [
             .font: UIFont.systemFont(ofSize: 16)
         ]
         
         let habitButton = UIButton(type: .system)
-        habitButton.setTitle("Привычка", for: .normal)
+        habitButton.setTitle(NSLocalizedString("habitTitle", comment: "Привычка"), for: .normal)
         habitButton.setTitleColor(.white, for: .normal)
         habitButton.backgroundColor = .black
         habitButton.layer.cornerRadius = 16
@@ -32,7 +32,7 @@ final class CreateTrackerViewController: UIViewController {
         habitButton.translatesAutoresizingMaskIntoConstraints = false
         
         let eventButton = UIButton(type: .system)
-        eventButton.setTitle( "Нерегулярное событие", for: .normal)
+        eventButton.setTitle(NSLocalizedString("eventTitle", comment: "Нерегулярное событие"), for: .normal)
         eventButton.setTitleColor(.white, for: .normal)
         eventButton.backgroundColor = .black
         eventButton.layer.cornerRadius = 16
@@ -59,14 +59,14 @@ final class CreateTrackerViewController: UIViewController {
     }
     
     @objc private func handleCreateHabit(){
-        let habitVC = TrackerFormViewController(config: .init(type: .habit, title: "Новая привычка", showSchedule: true))
+        let habitVC = TrackerFormViewController(config: .init(type: .habit, title: NSLocalizedString("addHabitTitle", comment: "Новая привычка"), showSchedule: true))
         habitVC.delegate = self.delegate
         navigationController?.pushViewController(habitVC, animated: true)
         
     }
     
     @objc private func handleCreateEvent() {
-        let eventVC = TrackerFormViewController(config: .init(type: .event, title: "Новое нерегулярное событие", showSchedule: false))
+        let eventVC = TrackerFormViewController(config: .init(type: .event, title:NSLocalizedString("addEventTitle", comment: "Новое нерегулярное событие"), showSchedule: false))
         eventVC.delegate = self.delegate
         navigationController?.pushViewController(eventVC, animated: true)
     }

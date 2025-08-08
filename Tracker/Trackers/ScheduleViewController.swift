@@ -2,7 +2,7 @@ import UIKit
 
 final class ScheduleViewController: UIViewController {
     
-    private let days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
+    private let days = WeekDay.allCases
     var selectedDays: Set<WeekDay> = []
     var onSave: ((Set<WeekDay>) -> Void)?
     
@@ -11,7 +11,7 @@ final class ScheduleViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Расписание"
+        title = NSLocalizedString("scheduleTitle", comment: "Расписание")
         view.backgroundColor = .white
         navigationItem.hidesBackButton = true
         
@@ -39,7 +39,7 @@ final class ScheduleViewController: UIViewController {
     }
     
     private func setupDoneButton() {
-        doneButton.setTitle("Готово", for: .normal)
+        doneButton.setTitle(NSLocalizedString("doneButtonTitle", comment: "Готово"), for: .normal)
         doneButton.setTitleColor(.white, for: .normal)
         doneButton.backgroundColor = .black
         doneButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
@@ -75,10 +75,10 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
         
-        let weekday = WeekDay(rawValue: indexPath.row + 1)!
+        let weekday = days[indexPath.row]
         let isSelected = selectedDays.contains(weekday)
         
-        cell.configure(day: days[indexPath.row], isOn: isSelected)
+        cell.configure(day: weekday.displayName, isOn: isSelected)
         cell.switchChanged = { [weak self] isOn in
             guard let self else { return }
             if isOn {

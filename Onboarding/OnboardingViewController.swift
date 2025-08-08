@@ -8,7 +8,7 @@ final class OnboardingViewController: UIViewController {
     
     private let continueButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Вот это, технологии", for: .normal)
+        button.setTitle(NSLocalizedString("onboardingButtonTitle", comment: "Название кнопки онбординга"), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .black
         button.titleLabel?.font = .boldSystemFont(ofSize: 16)
@@ -26,8 +26,8 @@ final class OnboardingViewController: UIViewController {
     
     init() {
         pages = [
-            ImagePageViewController(imageName: "Image1", labelText: "Отслеживайте только то, что хотите"),
-            ImagePageViewController(imageName: "Image2", labelText: "Даже если это не литры воды и йога")
+            ImagePageViewController(imageName: "Image1", labelText: NSLocalizedString("imagePageOneTitle", comment: "Отображение текста на картинке в 1 контроллере")),
+            ImagePageViewController(imageName: "Image2", labelText: NSLocalizedString("imagePageTwoTitle", comment: "Отображение текста на картинке в 2 контроллере"))
         ]
         pageViewController = UIPageViewController(
             transitionStyle: .scroll,

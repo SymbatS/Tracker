@@ -43,7 +43,7 @@ final class TrackerFormViewModel {
         
         if name.count > 38 {
             name = String(name.prefix(38))
-            onErrorMessageChanged?("Ограничение 38 символов")
+            onErrorMessageChanged?(NSLocalizedString("onErrorTitle", comment: "Ограничение 38 символов"))
         } else {
             onErrorMessageChanged?(nil)
         }
@@ -121,7 +121,7 @@ final class TrackerFormViewModel {
     
     func formattedSchedule(_ days: Set<WeekDay>) -> String {
         if days.count == 7 {
-            return "Каждый день"
+            return NSLocalizedString("everyDayTitle", comment: "Каждый день")
         } else {
             return days.sorted(by: { $0.rawValue < $1.rawValue })
                 .map { $0.shortTitle }

@@ -59,7 +59,7 @@ final class TrackersViewModel {
 
         var result: [TrackerCategory] = []
         if !pinnedTrackers.isEmpty {
-            result.append(TrackerCategory(id: UUID(), title: "Закреплённые", trackers: pinnedTrackers))
+            result.append(TrackerCategory(id: UUID(), title: NSLocalizedString("pinnedTitle", comment: "Закреплённые"), trackers: pinnedTrackers))
         }
         result.append(contentsOf: regularCategories)
         return result

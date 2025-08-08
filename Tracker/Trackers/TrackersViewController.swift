@@ -35,7 +35,7 @@ final class TrackersViewController: UIViewController {
     private let textFinder = UILabel()
     private let cancelButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Отменить", for: .normal)
+        button.setTitle(NSLocalizedString("cancelTitle", comment: "Отменить"), for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17)
         button.isHidden = true
@@ -110,7 +110,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func setupLargeTitle() {
-        largeTitle.text = "Трекеры"
+        largeTitle.text = NSLocalizedString("trackersTitle", comment: "Трекеры")
         largeTitle.font = .systemFont(ofSize: 34, weight: .bold)
         largeTitle.textColor = .black
     }
@@ -122,7 +122,7 @@ final class TrackersViewController: UIViewController {
     
     private func setupDatePicker() {
         datePicker.datePickerMode = .date
-        datePicker.locale = Locale(identifier: "ru_RU")
+        datePicker.locale = Locale.current
         datePicker.preferredDatePickerStyle = .compact
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
     }
@@ -139,7 +139,7 @@ final class TrackersViewController: UIViewController {
         cancelButton.isHidden = true
         cancelButton.setContentHuggingPriority(.required, for: .horizontal)
         
-        searchField.placeholder = "Поиск"
+        searchField.placeholder = NSLocalizedString("searchFieldPlaceholder", comment: "Поиск")
         searchField.layer.cornerRadius = 10
         searchField.layer.masksToBounds = true
         searchField.backgroundColor = UIColor(red: 118/255, green: 118/255, blue: 128/255, alpha: 0.12)
@@ -159,14 +159,14 @@ final class TrackersViewController: UIViewController {
     
     private func setupEmptyState() {
         imageStar.image = UIImage(resource: .star)
-        emptyStateLabel.text = "Что будем отслеживать?"
+        emptyStateLabel.text = NSLocalizedString("emtyLabelTitle", comment: "Что будем отслеживать?")
         emptyStateLabel.font = .systemFont(ofSize: 12)
         emptyStateLabel.textColor = .black
     }
     
     private func setupEmptyFinder() {
         imageFinder.image = UIImage(resource: .filterEmoji)
-        textFinder.text = "Ничего не найдено"
+        textFinder.text = NSLocalizedString("textFinderTitle", comment: "Ничего не найдено")
         textFinder.font = .systemFont(ofSize: 12)
         textFinder.textColor = .black
         textFinder.textAlignment = .center
@@ -180,7 +180,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func setupFilterButton() {
-        filterButton.setTitle("Фильтры", for: .normal)
+        filterButton.setTitle(NSLocalizedString("filterTitle", comment: "Фильтры"), for: .normal)
         filterButton.setTitleColor(.white, for: .normal)
         filterButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .medium)
         filterButton.backgroundColor = .systemBlue
@@ -215,11 +215,11 @@ final class TrackersViewController: UIViewController {
     }
     
     private func confirmDeleteTracker(_ tracker: Tracker) {
-        let alert = UIAlertController(title: "Уверены что хотите удалить трекер?",
+        let alert = UIAlertController(title: NSLocalizedString("alertDeleteTitle", comment: "Уверены что хотите удалить трекер?"),
                                       message: nil,
                                       preferredStyle: .actionSheet)
         
-        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("deleteTitle", comment: "Удалить"), style: .destructive) { [weak self] _ in
             do {
                 try self?.viewModel.deleteTracker(tracker)
             } catch {
@@ -227,7 +227,7 @@ final class TrackersViewController: UIViewController {
             }
         })
         
-        alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("cancelTitle", comment: "Отменить"), style: .cancel))
         present(alert, animated: true)
     }
 
@@ -365,7 +365,7 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
     func collectionView(_ collectionView: UICollectionView,
                         trailingSwipeActionsConfigurationForItemAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") { [weak self] _, _, completion in
+        let deleteAction = UIContextualAction(style: .destructive, title: NSLocalizedString("deleteTitle", comment: "Удалить")) { [weak self] _, _, completion in
             guard let self = self else { return }
             let tracker = self.filteredCategories[indexPath.section].trackers[indexPath.item]
             do {
@@ -393,7 +393,7 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
             }
             
             let isPinned = tracker.isPinned
-            let pinTitle = isPinned ? "Открепить" : "Закрепить"
+            let pinTitle = isPinned ? NSLocalizedString("unpinTitle", comment: "Открепить") : NSLocalizedString("pinTitle", comment: "Закрепить")
             
             let pinAction = UIAction(title: pinTitle) { _ in
                 do {
@@ -404,12 +404,12 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
                 }
             }
             
-            let editAction = UIAction(title: "Редактировать") { _ in
+            let editAction = UIAction(title: NSLocalizedString("editTitle", comment: "Редактировать")) { _ in
                 self.presentEditTrackerVC(tracker)
             }
             
             let deleteAction = UIAction(
-                title: "Удалить",
+                title: NSLocalizedString("deleteTitle", comment: "Удалить"),
                 attributes: .destructive
             ) { _ in
                 self.confirmDeleteTracker(tracker)

@@ -7,9 +7,9 @@ final class TabBarViewController: UITabBarController {
         var title: String {
             switch self {
             case .trackers:
-                return "Трекеры"
+                return NSLocalizedString("trackersTitle", comment: "Трекеры")
             case .stats:
-                return "Статистика"
+                return NSLocalizedString("statsTitle", comment: "Статистика")
             }
             
         }
@@ -50,8 +50,8 @@ final class TabBarViewController: UITabBarController {
         let statsVC = StatsViewController()
         
         viewControllers = [
-            wrappedInNavigationController(with: trackersVC, title: "Трекеры"),
-            wrappedInNavigationController(with: statsVC, title: "Статистика")
+            wrappedInNavigationController(with: trackersVC, title: NSLocalizedString("trackersTitle", comment: "Трекеры")),
+            wrappedInNavigationController(with: statsVC, title: NSLocalizedString("statsTitle", comment: "Статистика"))
         ]
 
         viewControllers?.enumerated().forEach {

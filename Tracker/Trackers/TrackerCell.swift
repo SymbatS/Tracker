@@ -97,7 +97,7 @@ final class TrackerCell: UICollectionViewCell {
     func configure(with tracker: Tracker, isDone: Bool, count: Int, isFuture: Bool) {
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
-        countLabel.text = "\(count) дней"
+        countLabel.text = String.localizedStringWithFormat(NSLocalizedString("days_count", comment: "Количество выполненных дней"), count)
         cardView.backgroundColor = tracker.color
         
         let imageName = isDone ? "checkmark" : "plus"
