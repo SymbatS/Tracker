@@ -16,10 +16,10 @@ final class TrackerCoreDataAdapter {
         else {
             return nil
         }
-
+        
         let scheduleRaw = (object.schedule as? [NSNumber])?.compactMap { WeekDay(rawValue: $0.intValue) } ?? []
         let scheduleSet = Set(scheduleRaw)
-
+        
         return Tracker(
             id: id,
             name: name,

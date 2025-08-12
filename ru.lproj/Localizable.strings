@@ -50,3 +50,14 @@
 "pinTitle" = "Закрепить";
 "unpinTitle" = "Открепить";
 "pinnedTitle" = "Закреплённые";
+"filterAll" = "Все трекеры";
+"filterToday" = "Трекеры на сегодня";
+"filterCompleted" = "Завершённые";
+"filterInComplete" = "Не завершённые";
+"statsTitle" = "Статистика";
+"statsEmtySmallTitle" = "Анализировать пока нечего";
+"statsBestPeriodTitle" = "Лучший период";
+"statsPerfectDaysTitle" = "Идеальные дни";
+"statsCompletedTrackersTitle" = "Трекеров завершено";
+"statsAverageValueTitle" = "Среднее значение";
+

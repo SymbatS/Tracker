@@ -1,4 +1,5 @@
 import UIKit
+import AppMetricaCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,7 +15,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } else {
             window?.rootViewController = OnboardingViewController()
         }
-        
+        if let configuration = AppMetricaConfiguration(apiKey: "51d3a690-efcf-47d0-b44b-9fd5df38562d") {
+            AppMetrica.activate(with: configuration)
+        }
         window?.makeKeyAndVisible()
         return true
     }

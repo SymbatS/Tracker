@@ -50,3 +50,13 @@
 "pinTitle" = "Pin";
 "unpinTitle" = "Unpin";
 "pinnedTitle" = "Pinned";
+"filterAll" = "All trackers";
+"filterToday" = "Today's trackers";
+"filterCompleted" = "Completed";
+"filterInComplete" = "Incomplete";
+"statsTitle" = "Statistics";
+"statsEmtySmallTitle" = "Nothing to analyze yet";
+"statsBestPeriodTitle" = "Best period";
+"statsPerfectDaysTitle" = "Perfect days";
+"statsCompletedTrackersTitle" = "Completed trackers";
+"statsAverageValueTitle" = "Average value";

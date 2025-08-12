@@ -50,3 +50,13 @@
 "pinTitle" = "Бекіту";
 "unpinTitle" = "Бекітуді алу";
 "pinnedTitle" = "Бекітілген";
+"filterAll" = "Барлық трекерлер";
+"filterToday" = "Бүгінгі трекерлер";
+"filterCompleted" = "Аяқталғандар";
+"filterInComplete" = "Аяқталмағандар";
+"statsTitle" = "Статистика";
+"statsEmtySmallTitle" = "Талдау үшін әзірге ештеңе жоқ";
+"statsBestPeriodTitle" = "Ең жақсы кезең";
+"statsPerfectDaysTitle" = "Идеалды күндер";
+"statsCompletedTrackersTitle" = "Орындалған трекерлер";
+"statsAverageValueTitle" = "Орташа мән";
