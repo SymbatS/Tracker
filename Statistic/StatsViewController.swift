@@ -1,5 +1,18 @@
 import UIKit
 
+private struct StatItem {
+    let title: String
+    let value: String
+    let color: UIColor
+}
+
+private struct StatsSummary {
+    let bestPeriodDays: Int
+    let perfectDays: Int
+    let totalCompleted: Int
+    let averagePerDay: Double
+}
+
 final class StatsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     private let viewModel: TrackersViewModel
@@ -9,12 +22,6 @@ final class StatsViewController: UIViewController, UITableViewDataSource, UITabl
         super.init(nibName: nil, bundle: nil)
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-    
-    private struct StatItem {
-        let title: String
-        let value: String
-        let color: UIColor
-    }
     
     private let blue  = UIColor(hex: "#007BFA") ?? .systemBlue
     private let green = UIColor(hex: "#46E69D") ?? .systemGreen
@@ -124,13 +131,6 @@ final class StatsViewController: UIViewController, UITableViewDataSource, UITabl
         }
         
         tableView.reloadData()
-    }
-    
-    private struct StatsSummary {
-        let bestPeriodDays: Int
-        let perfectDays: Int
-        let totalCompleted: Int
-        let averagePerDay: Double
     }
     
     private func computeStats() -> StatsSummary {

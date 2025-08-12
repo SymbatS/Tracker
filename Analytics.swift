@@ -1,8 +1,14 @@
 import Foundation
 import AppMetricaCore
 
-enum AnalyticsEvent: String { case open, close, click }
-enum AnalyticsScreen: String { case main = "Main" }
+enum AnalyticsEvent: String {
+    case open, close, click
+}
+
+enum AnalyticsScreen: String {
+    case main = "Main"
+}
+
 enum AnalyticsItem: String {
     case addTrack = "add_track"
     case track    = "track"
