@@ -78,7 +78,7 @@ final class TrackerCategoryStore: NSObject {
             delegate?.didUpdateCategories()
         }
     }
-
+    
     func deleteCategory(withId id: UUID) {
         let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)

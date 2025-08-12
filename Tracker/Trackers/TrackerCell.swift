@@ -3,12 +3,12 @@ import UIKit
 final class TrackerCell: UICollectionViewCell {
     
     private let cardView = UIView()
-    private let emojiLabel = UILabel()
     private let emojiBackgroundView = UIView()
+    private let emojiLabel = UILabel()
     private let nameLabel = UILabel()
     private let footerView = UIView()
     private let countLabel = UILabel()
-    private let doneButton = UIButton()
+    private let doneButton = UIButton(type: .system)
     
     var onToggleDone: (() -> Void)?
     
@@ -16,9 +16,16 @@ final class TrackerCell: UICollectionViewCell {
         super.init(frame: frame)
         setupUI()
     }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        emojiLabel.text = nil
+        nameLabel.text = nil
+        countLabel.text = nil
+        doneButton.setImage(nil, for: .normal)
+        doneButton.isEnabled = true
+        doneButton.alpha = 1
     }
     
     private func setupUI() {
@@ -27,35 +34,42 @@ final class TrackerCell: UICollectionViewCell {
         cardView.layer.cornerRadius = 16
         cardView.clipsToBounds = true
         
-        emojiBackgroundView.backgroundColor = UIColor.white.withAlphaComponent(0.3)
         emojiBackgroundView.layer.cornerRadius = 12
         emojiBackgroundView.clipsToBounds = true
-        emojiBackgroundView.translatesAutoresizingMaskIntoConstraints = false
+        emojiBackgroundView.backgroundColor = UIColor { tc in
+            tc.userInterfaceStyle == .dark
+            ? UIColor.white.withAlphaComponent(0.22)
+            : UIColor.white.withAlphaComponent(0.30)
+        }
         
         emojiLabel.font = .systemFont(ofSize: 16)
         emojiLabel.textAlignment = .center
-        emojiLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        cardView.addSubview(emojiBackgroundView)
-        emojiBackgroundView.addSubview(emojiLabel)
         
         nameLabel.font = .systemFont(ofSize: 12, weight: .medium)
         nameLabel.textColor = .white
         nameLabel.numberOfLines = 2
         
-        countLabel.font = .systemFont(ofSize: 12, weight: .medium)
-        countLabel.textColor = .black
+        footerView.backgroundColor = .clear
         
-        doneButton.tintColor = .white
+        countLabel.font = .systemFont(ofSize: 12, weight: .medium)
+        countLabel.textColor = .label
         doneButton.layer.cornerRadius = 17
         doneButton.clipsToBounds = true
-        doneButton.backgroundColor = .green
+        doneButton.tintColor = .white
         doneButton.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
         
-        contentView.addSubviews(cardView, footerView)
-        cardView.addSubviews(emojiLabel, nameLabel)
-        footerView.addSubviews(countLabel, doneButton)
-        [cardView, emojiLabel, nameLabel, footerView, countLabel, doneButton].disableAutoResizingMasks()
+        contentView.addSubview(cardView)
+        contentView.addSubview(footerView)
+        
+        cardView.addSubview(emojiBackgroundView)
+        emojiBackgroundView.addSubview(emojiLabel)
+        cardView.addSubview(nameLabel)
+        
+        footerView.addSubview(countLabel)
+        footerView.addSubview(doneButton)
+        
+        [cardView, emojiBackgroundView, emojiLabel, nameLabel, footerView, countLabel, doneButton]
+            .forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
             cardView.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -90,29 +104,29 @@ final class TrackerCell: UICollectionViewCell {
         ])
     }
     
-    @objc private func didTapDone() {
-        onToggleDone?()
-    }
+    @objc private func didTapDone() { onToggleDone?() }
     
     func configure(with tracker: Tracker, isDone: Bool, count: Int, isFuture: Bool) {
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
-        countLabel.text = "\(count) дней"
         cardView.backgroundColor = tracker.color
         
-        let imageName = isDone ? "checkmark" : "plus"
-        doneButton.setImage(UIImage(systemName: imageName), for: .normal)
+        countLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("days_count", comment: "Количество выполненных дней"),
+            count
+        )
+        
+        let symbolName = isDone ? "checkmark" : "plus"
+        doneButton.setImage(UIImage(systemName: symbolName), for: .normal)
         
         doneButton.isEnabled = !isFuture
         doneButton.alpha = isFuture ? 0.3 : 1.0
         
         if isDone {
-            doneButton.backgroundColor = tracker.color.withAlphaComponent(0.3)
-            doneButton.tintColor = .white
+            doneButton.backgroundColor = tracker.color.withAlphaComponent(0.30)
         } else {
             doneButton.backgroundColor = tracker.color
-            doneButton.tintColor = .white
         }
+        doneButton.tintColor = .white
     }
-    
 }

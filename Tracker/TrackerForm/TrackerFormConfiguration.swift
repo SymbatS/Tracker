@@ -28,7 +28,7 @@ struct TrackerFormConfiguration {
     
     init(tracker: Tracker, completedCount: Int? = nil) {
         self.type = tracker.type
-        self.title = "Редактирование привычки"
+        self.title = NSLocalizedString("trackerFormEditTitle", comment: "Редактирование привычки")
         self.showSchedule = tracker.type == .habit
         self.existingTracker = tracker
         self.completedCount = completedCount

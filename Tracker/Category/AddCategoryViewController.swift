@@ -10,7 +10,7 @@ final class AddCategoryViewController: UIViewController {
     private let textField = UITextField()
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(NSLocalizedString("doneButtonTitle", comment: "Кнопка готово"), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .boldSystemFont(ofSize: 16)
         button.layer.cornerRadius = 16
@@ -40,11 +40,11 @@ final class AddCategoryViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = "Новая категория"
+        title = NSLocalizedString("addCatetegoryTitle", comment: "Новая категория")
         navigationItem.hidesBackButton = true
         
         textField.backgroundColor = UIColor(red: 230/255, green: 232/255, blue: 235/255, alpha: 0.3)
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = NSLocalizedString("textFieldPlaceholder", comment: "Введите название категории")
         textField.font = .systemFont(ofSize: 17)
         textField.clearButtonMode = .whileEditing
         textField.returnKeyType = .done

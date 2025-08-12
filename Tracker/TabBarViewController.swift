@@ -7,9 +7,9 @@ final class TabBarViewController: UITabBarController {
         var title: String {
             switch self {
             case .trackers:
-                return "Трекеры"
+                return NSLocalizedString("trackersTitle", comment: "Трекеры")
             case .stats:
-                return "Статистика"
+                return NSLocalizedString("statsTitle", comment: "Статистика")
             }
             
         }
@@ -35,11 +35,11 @@ final class TabBarViewController: UITabBarController {
     
     private func setupTabBar() {
         let context = CoreDataStack.shared.context
-
+        
         let trackerStore = TrackerStore(context: context)
         let trackerCategoryStore = TrackerCategoryStore(context: context)
         let trackerRecordStore = TrackerRecordStore(context: context)
-
+        
         let viewModel = TrackersViewModel(
             trackerStore: trackerStore,
             trackerCategoryStore: trackerCategoryStore,
@@ -47,13 +47,13 @@ final class TabBarViewController: UITabBarController {
         )
         
         let trackersVC = TrackersViewController(viewModel: viewModel)
-        let statsVC = StatsViewController()
+        let statsVC = StatsViewController(viewModel: viewModel)
         
         viewControllers = [
-            wrappedInNavigationController(with: trackersVC, title: "Трекеры"),
-            wrappedInNavigationController(with: statsVC, title: "Статистика")
+            wrappedInNavigationController(with: trackersVC, title: NSLocalizedString("trackersTitle", comment: "Трекеры")),
+            wrappedInNavigationController(with: statsVC, title: NSLocalizedString("statsTitle", comment: "Статистика"))
         ]
-
+        
         viewControllers?.enumerated().forEach {
             let item = TabBarItem(rawValue: $0)!
             $1.tabBarItem.title = item.title

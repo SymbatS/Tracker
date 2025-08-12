@@ -10,7 +10,7 @@ final class CategorySelectionViewController: UIViewController {
     private let tableView = UITableView()
     private let addButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Добавить категорию", for: .normal)
+        button.setTitle(NSLocalizedString("addButtonTitle", comment: "Добавить категорию"), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .black
         button.layer.cornerRadius = 16
@@ -35,7 +35,7 @@ final class CategorySelectionViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        title = "Категория"
+        title = NSLocalizedString("categorySelectionTitle", comment: "Категория")
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -61,8 +61,8 @@ final class CategorySelectionViewController: UIViewController {
         image.translatesAutoresizingMaskIntoConstraints = false
         smallTitle.translatesAutoresizingMaskIntoConstraints = false
         
-        image.image = UIImage(named: "Star")
-        smallTitle.text = "Привычки и события можно\nобъединить по смыслу"
+        image.image = UIImage(resource: .star)
+        smallTitle.text = NSLocalizedString("smallTitle", comment: "Привычки и события можно\nобъединить по смыслу")
         smallTitle.font = .systemFont(ofSize: 12)
         smallTitle.textColor = .black
         smallTitle.textAlignment = .center
@@ -99,16 +99,16 @@ final class CategorySelectionViewController: UIViewController {
     
     private func confirmDeleteCategory(at indexPath: IndexPath) {
         let actionSheet = UIAlertController(
-            title: "Эта категория точно не нужна?",
+            title: NSLocalizedString("actionSheetTitle", comment: "Эта категория точно не нужна?"),
             message: nil,
             preferredStyle: .actionSheet
         )
-        actionSheet.addAction(UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+        actionSheet.addAction(UIAlertAction(title: NSLocalizedString("deleteTitle", comment: "Удалить"), style: .destructive) { [weak self] _ in
             guard let self else { return }
             let category = self.categories[indexPath.row]
             self.viewModel.deleteCategory(id: category.id)
         })
-        actionSheet.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        actionSheet.addAction(UIAlertAction(title: NSLocalizedString("cancelTitle", comment: "Отменить"), style: .cancel))
         present(actionSheet, animated: true)
     }
     
@@ -152,12 +152,12 @@ extension CategorySelectionViewController: UITableViewDataSource, UITableViewDel
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
             guard let self = self else { return nil }
             
-            let edit = UIAction(title: "Редактировать") { _ in
+            let edit = UIAction(title: NSLocalizedString("editTitle", comment: "Редактировать")) { _ in
                 self.presentEditScreen(for: category)
             }
             
             let delete = UIAction(
-                title: "Удалить",
+                title: NSLocalizedString("deleteTitle", comment: "Удалить"),
                 attributes: .destructive
             ) { _ in
                 self.confirmDeleteCategory(at: indexPath)

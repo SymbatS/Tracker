@@ -73,21 +73,21 @@ final class TrackerFormViewController: UIViewController {
         }
         viewModel.onPrefill = { [weak self] name, emoji, color, category, schedule in
             guard let self else { return }
-
+            
             self.nameTextField.text = name
             
             if let emoji {
                 self.emojiCollectionView.selectEmoji(emoji)
             }
-
+            
             if let color {
                 self.colorPickerCollectionView.selectColor(color)
             }
-
+            
             if let category {
                 self.updateCategoryButton(with: category)
             }
-
+            
             self.updateScheduleButton(with: self.viewModel.formattedSchedule(schedule))
         }
     }
@@ -98,7 +98,7 @@ final class TrackerFormViewController: UIViewController {
         colorPickerCollectionView.delegate = self
         
         nameTextField.layer.cornerRadius = 16
-        nameTextField.placeholder = "Введите название трекера"
+        nameTextField.placeholder = NSLocalizedString("nameTextFieldPlaceholder", comment: "Введите название трекера")
         nameTextField.backgroundColor = UIColor(white: 0.9, alpha: 0.3)
         nameTextField.font = .systemFont(ofSize: 17)
         nameTextField.clearButtonMode = .whileEditing
@@ -119,7 +119,7 @@ final class TrackerFormViewController: UIViewController {
         containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.heightAnchor.constraint(equalToConstant: config.showSchedule ? 150 : 75).isActive = true
         
-        categoryButton = createArrowButton(title: "Категория", subtitle: nil)
+        categoryButton = createArrowButton(title: NSLocalizedString("categorySelectionTitle", comment: "Категория"), subtitle: nil)
         categoryButton.titleLabel?.font = .systemFont(ofSize: 17)
         categoryButton.addTarget(self, action: #selector(categoryTapped), for: .touchUpInside)
         
@@ -138,7 +138,7 @@ final class TrackerFormViewController: UIViewController {
             separator.backgroundColor = .gray
             separator.translatesAutoresizingMaskIntoConstraints = false
             
-            scheduleButton = createArrowButton(title: "Расписание")
+            scheduleButton = createArrowButton(title: NSLocalizedString("scheduleTitle", comment: "Расписание"))
             scheduleButton.titleLabel?.font = .systemFont(ofSize: 17)
             scheduleButton.addTarget(self, action: #selector(scheduleTapped), for: .touchUpInside)
             
@@ -161,7 +161,7 @@ final class TrackerFormViewController: UIViewController {
         
         emojiLabel.text = "Emoji"
         emojiLabel.font = .systemFont(ofSize: 19, weight: .bold)
-        colorLabel.text = "Цвет"
+        colorLabel.text = NSLocalizedString("colorTitle", comment: "Цвет")
         colorLabel.font = .systemFont(ofSize: 19, weight: .bold)
         
         setupButtons()
@@ -170,7 +170,7 @@ final class TrackerFormViewController: UIViewController {
     }
     
     private func setupButtons() {
-        cancelButton.setTitle("Отменить", for: .normal)
+        cancelButton.setTitle(NSLocalizedString("cancelTitle", comment: "Отменить"), for: .normal)
         cancelButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         cancelButton.setTitleColor(.red, for: .normal)
         cancelButton.layer.borderColor = UIColor.red.cgColor
@@ -178,7 +178,7 @@ final class TrackerFormViewController: UIViewController {
         cancelButton.layer.cornerRadius = 16
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
         
-        saveButton.setTitle("Создать", for: .normal)
+        saveButton.setTitle(NSLocalizedString("createTitle", comment: "Создать"), for: .normal)
         saveButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         saveButton.setTitleColor(.white, for: .normal)
         saveButton.backgroundColor = .gray
@@ -348,7 +348,7 @@ final class TrackerFormViewController: UIViewController {
     private func updateCategoryButton(with category: String) {
         guard let label = categoryButton.subviews.compactMap({ $0 as? UILabel }).first else { return }
         
-        let title = NSAttributedString(string: "Категория\n", attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.black])
+        let title = NSAttributedString(string: NSLocalizedString("categorysubtitleTitle", comment: "Категория\n"), attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.black])
         let subtitle = NSAttributedString(string: category, attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.gray])
         
         let fullText = NSMutableAttributedString()
@@ -360,7 +360,7 @@ final class TrackerFormViewController: UIViewController {
     private func updateScheduleButton(with text: String) {
         guard let label = scheduleButton.subviews.compactMap({ $0 as? UILabel }).first else { return }
         
-        let title = NSAttributedString(string: "Расписание\n", attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.black])
+        let title = NSAttributedString(string: NSLocalizedString("schedulesubtitleTitle", comment: "Расписание\n"), attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.black])
         let subtitle = NSAttributedString(string: text, attributes: [.font: UIFont.systemFont(ofSize: 17), .foregroundColor: UIColor.gray])
         
         let fullText = NSMutableAttributedString()
@@ -386,6 +386,7 @@ final class TrackerFormViewController: UIViewController {
         }
         navigationController?.pushViewController(vc, animated: true)
     }
+    
     @objc private func cancelTapped() {
         dismiss(animated: true)
     }
